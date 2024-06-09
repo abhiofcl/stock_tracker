@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stock_tracker/pages/multiuser/user_login.dart';
 import 'package:stock_tracker/saved.dart';
 import 'package:stock_tracker/welcome.dart';
 
@@ -13,7 +14,8 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      darkTheme: ThemeData.dark(useMaterial3: true),
+      theme: ThemeData(primarySwatch: Colors.blue),
+      // darkTheme: ThemeData.dark(useMaterial3: true),
       home: MyWidget(),
     );
   }
@@ -26,7 +28,7 @@ class MyWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.orange,
+        backgroundColor: Colors.black26,
         title: const Text("Stock Tracker"),
         actions: [
           IconButton(
@@ -40,7 +42,7 @@ class MyWidget extends StatelessWidget {
           ),
         ],
       ),
-      body: const Welcome(),
+      body: LoginScreen(),
     );
   }
 }
