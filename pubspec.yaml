@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  intl: ^0.19.0
+  pdf: ^3.10.8
   sqflite: ^2.3.2
 
 dev_dependencies:

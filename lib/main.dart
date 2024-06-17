@@ -14,9 +14,12 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: const Color.fromARGB(255, 40, 60, 69),
+      ),
       // darkTheme: ThemeData.dark(useMaterial3: true),
-      home: MyWidget(),
+      home: const MyWidget(),
     );
   }
 }
@@ -29,18 +32,10 @@ class MyWidget extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black26,
-        title: const Text("Stock Tracker"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.wallet),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                return const Saved();
-              }));
-            },
-          ),
-        ],
+        title: const Text(
+          "Stock Tracker",
+          style: TextStyle(color: Colors.amber),
+        ),
       ),
       body: LoginScreen(),
     );
