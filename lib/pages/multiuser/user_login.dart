@@ -3,6 +3,8 @@ import 'package:stock_tracker/pages/multiuser/display.dart';
 import 'package:stock_tracker/pages/multiuser/multiuser_service.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -41,10 +43,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select Account'),
+        backgroundColor: Colors.black12,
+        foregroundColor: Colors.white,
+        title: const Text('Select Account'),
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
         onPressed: () => showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -63,7 +67,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               _userNameController.text = value;
                             });
                           },
-                          decoration: InputDecoration(label: Text("name")),
+                          decoration:
+                              const InputDecoration(label: Text("name")),
                         ),
                         TextFormField(
                           controller: _idNoController,
@@ -72,7 +77,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               _idNoController.text = value;
                             });
                           },
-                          decoration: InputDecoration(label: Text("id no")),
+                          decoration:
+                              const InputDecoration(label: Text("id no")),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -84,14 +90,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text("Cancel"),
+                                child: const Text("Cancel"),
                               ),
                               ElevatedButton(
                                 onPressed: () {
                                   _addUser(_userNameController.text,
                                       _idNoController.text);
                                 },
-                                child: Text("Add"),
+                                child: const Text("Add"),
                               ),
                             ],
                           ),
@@ -131,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: ListTile(
                     iconColor: Colors.red,
                     leading: const Icon(Icons.person),
-                    contentPadding: EdgeInsets.all(8),
+                    contentPadding: const EdgeInsets.all(8),
                     tileColor: Colors.blue,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18),
@@ -147,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text("Delete this user??"),
+                                  const Text("Delete this user??"),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
@@ -157,14 +163,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                         onPressed: () {
                                           Navigator.of(context).pop();
                                         },
-                                        child: Text("Cancel"),
+                                        child: const Text("Cancel"),
                                       ),
                                       ElevatedButton(
                                         onPressed: () {
                                           _deleteUser(users[index]['name']);
                                           Navigator.of(context).pop();
                                         },
-                                        child: Text("Delete"),
+                                        child: const Text("Delete"),
                                       )
                                     ],
                                   )

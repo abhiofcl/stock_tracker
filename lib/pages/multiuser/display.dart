@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stock_tracker/pages/multiuser/multiuser_service.dart';
+import 'package:stock_tracker/saved.dart';
 // import 'database_service.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -25,7 +26,8 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Future<void> _loadStocks() async {
-    final dbStocks = await DatabaseService.instance.getStocks(widget.userName);
+    final dbStocks =
+        await DatabaseService.instance.getAllStocks(widget.userName);
     setState(() {
       stocks = dbStocks;
     });
@@ -41,6 +43,7 @@ class _AccountScreenState extends State<AccountScreen> {
         'buyPrice': double.parse(_buyPriceController.text),
         'buyDate': _selectedDate.toString(),
         'buyAmount': double.parse(_buyAmountController.text),
+        'remaining': double.parse(_buyAmountController.text),
       });
       _nameController.clear();
       _buyPriceController.clear();
@@ -69,6 +72,19 @@ class _AccountScreenState extends State<AccountScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('${widget.userName}\'s Account'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.wallet),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return Saved(
+                  userName: '${widget.userName}',
+                );
+              }));
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -76,13 +92,13 @@ class _AccountScreenState extends State<AccountScreen> {
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Stock Name',
               ),
             ),
             TextFormField(
               controller: _buyPriceController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Buy Price',
               ),
               keyboardType:
@@ -90,35 +106,23 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
             TextFormField(
               controller: _buyAmountController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Buy Amount',
               ),
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () => _selectDate(context),
               child: Text(_selectedDate == null
                   ? 'Select Date'
                   : _selectedDate!.toLocal().toString().split(' ')[0]),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _addStock,
-              child: Text('Add Stock'),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: stocks.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(stocks[index]['name']),
-                    subtitle: Text(
-                        'Price: ${stocks[index]['buyPrice']}, Date: ${stocks[index]['buyDate']}, Amount: ${stocks[index]['buyAmount']}'),
-                  );
-                },
-              ),
+              child: const Text('Add Stock'),
             ),
           ],
         ),
