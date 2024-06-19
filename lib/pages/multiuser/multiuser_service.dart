@@ -152,6 +152,9 @@ class DatabaseService {
       where: 'id=?',
       whereArgs: [stockId],
     );
+    await db.rawQuery(
+        "UPDATE ${userName}_stocks set pl = ((sellPrice*buyAmount - buyPrice*buyAmount)/(buyPrice*buyAmount))*100 where id=?",
+        [stockId]);
   }
 
 // delete an already made stock in case of wrongly inputting

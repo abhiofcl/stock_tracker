@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stock_tracker/pages/multiuser/user_login.dart';
-import 'package:stock_tracker/saved.dart';
-import 'package:stock_tracker/welcome.dart';
+import 'package:stock_tracker/pages/statement_dwd/pdf_service.dart';
+import 'package:stock_tracker/pages/statement_dwd/save_and_open.dart';
 
 void main() {
   runApp(const MainApp());
@@ -36,8 +36,17 @@ class MyWidget extends StatelessWidget {
           "Stock Tracker",
           style: TextStyle(color: Colors.amber),
         ),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              final tablePdf = await PdfApi.generateTable();
+              SaveAndOpenDocument.openPdf(tablePdf);
+            },
+            icon: const Icon(Icons.edit_document),
+          ),
+        ],
       ),
-      body: LoginScreen(),
+      body: const LoginScreen(),
     );
   }
 }
