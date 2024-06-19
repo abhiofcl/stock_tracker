@@ -34,6 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _loadUsers();
   }
 
+// to be changed
   Future<void> _deleteUser(String userName) async {
     await DatabaseService.instance.deleteUser(userName);
     _loadUsers();
@@ -78,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             });
                           },
                           decoration:
-                              const InputDecoration(label: Text("id no")),
+                              const InputDecoration(label: Text("PAN no")),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -111,23 +112,6 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       body: Column(
         children: [
-          // Padding(
-          //   padding: const EdgeInsets.all(8.0),
-          //   child: TextField(
-          //     controller: _userNameController,
-          //     decoration: InputDecoration(
-          //       labelText: 'Add New Account',
-          //       suffixIcon: IconButton(
-          //         icon: Icon(Icons.add),
-          //         onPressed: () {
-          //           if (_userNameController.text.isNotEmpty) {
-          //             _addUser(_userNameController.text, _idNoController.text);
-          //           }
-          //         },
-          //       ),
-          //     ),
-          //   ),
-          // ),
           Expanded(
             child: ListView.builder(
               itemCount: users.length,
@@ -184,6 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         MaterialPageRoute(
                           builder: (context) => AccountScreen(
                             userName: users[index]['name'],
+                            userPan: users[index]['idno'],
                           ),
                         ),
                       );
@@ -198,21 +183,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
-// class AccountScreen extends StatelessWidget {
-//   final String userName;
-
-//   AccountScreen({required this.userName});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('$userName\'s Account'),
-//       ),
-//       body: Center(
-//         child: Text('Welcome to $userName\'s account!'),
-//       ),
-//     );
-//   }
-// }

@@ -4,7 +4,8 @@ import 'package:stock_tracker/pages/stock_mgmt/stock_mgmt.dart';
 
 class Saved extends StatefulWidget {
   final String userName;
-  const Saved({super.key, required this.userName});
+  final String userPan;
+  const Saved({super.key, required this.userName, required this.userPan});
 
   @override
   State<Saved> createState() => _SavedState();
@@ -21,8 +22,8 @@ class _SavedState extends State<Saved> {
   }
 
   Future<void> _loadStocks() async {
-    final dbStocks =
-        await DatabaseService.instance.getTotalQuantity(widget.userName);
+    final dbStocks = await DatabaseService.instance
+        .getTotalQuantity(widget.userName, widget.userPan);
     setState(() {
       stocks = dbStocks;
     });

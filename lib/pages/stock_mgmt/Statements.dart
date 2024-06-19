@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:stock_tracker/pages/multiuser/multiuser_service.dart';
+import 'package:stock_tracker/pages/statement_dwd/pdf_service.dart';
+import 'package:stock_tracker/pages/statement_dwd/save_and_open.dart';
 
 class Statement extends StatefulWidget {
   final String userName;
@@ -14,6 +16,7 @@ class Statement extends StatefulWidget {
 class _StatementState extends State<Statement> {
   List<Map<String, dynamic>> plStocks = [];
   List<Map<String, dynamic>> holdStocks = [];
+  List<Map<String, dynamic>> stocksData = [];
   void initState() {
     super.initState();
     _loadStocks();
@@ -24,6 +27,8 @@ class _StatementState extends State<Statement> {
         .getPLStocks(widget.userName, widget.stockName);
     final dbHStocks = await DatabaseService.instance
         .getHoldingStocks(widget.userName, widget.stockName);
+    final data = await DatabaseService.instance
+        .fetchFinancialYearData(widget.userName, '2023');
     // final buya = await DatabaseService.instance
     //     .getBuyAvg(widget.userName, widget.stockName);
     // final totalInv = await DatabaseService.instance
@@ -32,6 +37,20 @@ class _StatementState extends State<Statement> {
     setState(() {
       plStocks = dbStocks;
       holdStocks = dbHStocks;
+      stocksData = data;
+    });
+  }
+
+  Future<void> _loadSFYST() async {
+    final data = await DatabaseService.instance
+        .fetchFinancialYearData(widget.userName, '2023');
+    // final buya = await DatabaseService.instance
+    //     .getBuyAvg(widget.userName, widget.stockName);
+    // final totalInv = await DatabaseService.instance
+    //     .getTotalStockOverview(widget.userName, widget.stockName);
+
+    setState(() {
+      stocksData = data;
     });
   }
 
@@ -42,6 +61,16 @@ class _StatementState extends State<Statement> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Statement Page"),
+          actions: [
+            IconButton(
+              onPressed: () async {
+                _loadSFYST();
+                final tablePdf = await PdfApi.generateTable(stocksData);
+                SaveAndOpenDocument.openPdf(tablePdf);
+              },
+              icon: const Icon(Icons.save),
+            ),
+          ],
           bottom: const TabBar(
             tabs: [
               Tab(

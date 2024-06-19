@@ -39,8 +39,8 @@ class MyWidget extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () async {
-              final tablePdf = await PdfApi.generateTable();
-              SaveAndOpenDocument.openPdf(tablePdf);
+              // final tablePdf = await PdfApi.generateTable();
+              // SaveAndOpenDocument.openPdf(tablePdf);
             },
             icon: const Icon(Icons.edit_document),
           ),

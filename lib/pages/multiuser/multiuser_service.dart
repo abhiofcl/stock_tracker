@@ -32,13 +32,14 @@ class DatabaseService {
     ''');
   }
 
-  Future<void> createUserTable(String userName) async {
+  Future<void> createUserTable(String userName, String userId) async {
     final db = await instance.database;
 
     await db.execute('''
-    CREATE TABLE IF NOT EXISTS ${userName}_stocks (
+    CREATE TABLE IF NOT EXISTS ${userId}_stocks (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT,
+      name TEXT NOT NULL,
+      brockerName NOT NULL,
       buyPrice REAL NOT NULL,
       buyDate TEXT NOT NULL,
       buyAmount REAL NOT NULL,
@@ -52,14 +53,43 @@ class DatabaseService {
     ''');
   }
 
+// add a new user account
+  Future<void> addUser(String userName, String userId) async {
+    final db = await instance.database;
+
+    await db.insert(
+      'users',
+      {'name': userName, 'idno': userId},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    // Create user-specific table
+    await createUserTable(userName, userId);
+  }
+
+// delete an existing user
+  Future<void> deleteUser(String userName) async {
+    final db = await instance.database;
+    await db.delete('users', where: 'name=?', whereArgs: [userName]);
+    await db.rawQuery('DROP TABLE ${userName}_stocks');
+  }
+
+  Future<List<Map<String, dynamic>>> getUsers() async {
+    final db = await instance.database;
+
+    return await db.query('users');
+  }
+
 // insert stocks
-  Future<void> insertStock(String userName, Map<String, dynamic> stock) async {
+  Future<void> insertStock(String userId, Map<String, dynamic> stock) async {
     final db = await instance.database;
     // Check for existing stocks with the same name
     final List<Map<String, dynamic>> existingStocks = await db.query(
-      '${userName}_stocks',
+      '${userId}_stocks',
       where: 'name = ?',
-      whereArgs: [stock['name']],
+      whereArgs: [
+        stock['name'],
+      ],
     );
     if (existingStocks.isNotEmpty) {
       // Check if any of the existing stocks have a non-empty currentPrice
@@ -77,7 +107,7 @@ class DatabaseService {
       }
     }
     await db.insert(
-      '${userName}_stocks',
+      '${userId}_stocks',
       stock,
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -192,10 +222,11 @@ class DatabaseService {
   }
 
 // to show the total quantity of a particular stock that is bought
-  Future<List<Map<String, dynamic>>> getTotalQuantity(String userName) async {
+  Future<List<Map<String, dynamic>>> getTotalQuantity(
+      String userName, String userPan) async {
     final db = await instance.database;
     return await db.rawQuery(
-        'SELECT name, SUM(buyAmount) as total_quantity FROM ${userName}_stocks GROUP BY name HAVING SUM(buyAmount) > 0');
+        'SELECT name, SUM(buyAmount) as total_quantity FROM ${userPan}_stocks GROUP BY name HAVING SUM(buyAmount) > 0');
   }
 
 // show the average buy amount by excluding the stocks that are already sold
@@ -207,30 +238,14 @@ class DatabaseService {
         [stockName]);
   }
 
-// add a new user account
-  Future<void> addUser(String userName, String userId) async {
+  // query for generating statement
+  Future<List<Map<String, dynamic>>> fetchFinancialYearData(
+      String userName, String date) async {
     final db = await instance.database;
-
-    await db.insert(
-      'users',
-      {'name': userName, 'idno': userId},
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-
-    // Create user-specific table
-    await createUserTable(userName);
-  }
-
-// delete an existing user
-  Future<void> deleteUser(String userName) async {
-    final db = await instance.database;
-    await db.delete('users', where: 'name=?', whereArgs: [userName]);
-    await db.rawQuery('DROP TABLE ${userName}_stocks');
-  }
-
-  Future<List<Map<String, dynamic>>> getUsers() async {
-    final db = await instance.database;
-
-    return await db.query('users');
+    final result = await db.query(
+      '${userName}_stocks',
+      where: 'remaining > 0',
+    ); // Adjust the query as needed
+    return result;
   }
 }

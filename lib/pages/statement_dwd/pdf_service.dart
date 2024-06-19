@@ -12,7 +12,7 @@ class User {
 }
 
 class PdfApi {
-  static Future<File> generateTable() async {
+  static Future<File> generateTable(List<Map<String, dynamic>> data) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.MultiPage(
@@ -32,12 +32,23 @@ class PdfApi {
             pw.Padding(padding: const pw.EdgeInsets.all(10)),
             pw.TableHelper.fromTextArray(
               context: context,
-              data: const <List<String>>[
-                <String>['Year', 'Sample'],
-                <String>['SN0', 'GFG1'],
-                <String>['SN1', 'GFG2'],
-                <String>['SN2', 'GFG3'],
-                <String>['SN3', 'GFG4'],
+              data: <List<String>>[
+                <String>[
+                  'Name',
+                  'Buy Price',
+                  'Buy Amount',
+                  'Buy Date',
+                  'Current Price',
+                  'P/L'
+                ],
+                ...data.map((item) => [
+                      item['name'].toString(),
+                      item['buyPrice'].toString(),
+                      item['buyAmount'].toString(),
+                      item['buyDate'].toString(),
+                      item['currPrice'].toString(),
+                      item['pl'].toString(),
+                    ]),
               ],
             ),
           ];

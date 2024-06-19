@@ -5,8 +5,9 @@ import 'package:stock_tracker/saved.dart';
 
 class AccountScreen extends StatefulWidget {
   final String userName;
+  final String userPan;
 
-  AccountScreen({required this.userName});
+  AccountScreen({required this.userName, required this.userPan});
 
   @override
   _AccountScreenState createState() => _AccountScreenState();
@@ -19,27 +20,28 @@ class _AccountScreenState extends State<AccountScreen> {
   DateTime? _selectedDate;
   List<Map<String, dynamic>> stocks = [];
 
-  @override
-  void initState() {
-    super.initState();
-    _loadStocks();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //    _loadStocks();
+  // }
 
-  Future<void> _loadStocks() async {
-    final dbStocks =
-        await DatabaseService.instance.getAllStocks(widget.userName);
-    setState(() {
-      stocks = dbStocks;
-    });
-  }
+  // Future<void> _loadStocks() async {
+  //   final dbStocks =
+  //       await DatabaseService.instance.getAllStocks(widget.userName);
+  //   setState(() {
+  //     stocks = dbStocks;
+  //   });
+  // }
 
   Future<void> _addStock() async {
     if (_selectedDate != null &&
         _nameController.text.isNotEmpty &&
         _buyPriceController.text.isNotEmpty &&
         _buyAmountController.text.isNotEmpty) {
-      await DatabaseService.instance.insertStock(widget.userName, {
+      await DatabaseService.instance.insertStock(widget.userPan, {
         'name': _nameController.text,
+        'brockerName': widget.userName,
         'buyPrice': double.parse(_buyPriceController.text),
         'buyDate': _selectedDate.toString(),
         'buyAmount': double.parse(_buyAmountController.text),
@@ -49,7 +51,7 @@ class _AccountScreenState extends State<AccountScreen> {
       _buyPriceController.clear();
       _buyAmountController.clear();
       _selectedDate = null;
-      _loadStocks();
+      // _loadStocks();
     }
   }
 
@@ -79,7 +81,8 @@ class _AccountScreenState extends State<AccountScreen> {
               Navigator.push(context,
                   MaterialPageRoute(builder: (BuildContext context) {
                 return Saved(
-                  userName: '${widget.userName}',
+                  userName: widget.userName,
+                  userPan: widget.userPan,
                 );
               }));
             },
