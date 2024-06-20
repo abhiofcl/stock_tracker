@@ -68,10 +68,10 @@ class DatabaseService {
   }
 
 // delete an existing user
-  Future<void> deleteUser(String userName) async {
+  Future<void> deleteUser(String userName, String userPan) async {
     final db = await instance.database;
     await db.delete('users', where: 'name=?', whereArgs: [userName]);
-    await db.rawQuery('DROP TABLE ${userName}_stocks');
+    await db.rawQuery('DROP TABLE ${userPan}_stocks');
   }
 
   Future<List<Map<String, dynamic>>> getUsers() async {
@@ -150,56 +150,55 @@ class DatabaseService {
 
 // get a single stock value to show the company names in a grouped fashion
   Future<List<Map<String, dynamic>>> getSingleStock(
-      String userName, String stockName) async {
+      String userName, String userPan, String stockName) async {
     final db = await instance.database;
 
     return await db
-        .query('${userName}_stocks', where: 'name=?', whereArgs: [stockName]);
+        .query('${userPan}_stocks', where: 'name=?', whereArgs: [stockName]);
   }
 
 // method to show the totoal invested and profit
   Future<List<Map<String, dynamic>>> getTotalStockOverview(
-      String userName, String stockName) async {
+      String userName, String userPan, String stockName) async {
     final db = await instance.database;
 
     return await db.rawQuery(
-        "SELECT sum(buyPrice*buyAmount) as totalInv FROM ${userName}_stocks  WHERE name=?",
+        "SELECT sum(buyPrice*buyAmount) as totalInv FROM ${userPan}_stocks  WHERE name=?",
         [stockName]);
   }
 
 // sell a batch of stock and update the fields sell date and price
-  Future<void> sellStock(
-      String userName, int stockId, double amount, String date) async {
+  Future<void> sellStock(String userName, String userPan, int stockId,
+      double amount, String date) async {
     final db = await instance.database;
 
-    await db.update(
-      '${userName}_stocks',
-      {
-        'remaining': 0,
-        'sellDate': date,
-        'sellPrice': amount,
-      },
-      where: 'id=?',
-      whereArgs: [stockId],
-    );
+    await db.rawUpdate('''
+  UPDATE ${userPan}_stocks 
+  SET 
+    remaining = 0, 
+    sellDate = ?, 
+    sellPrice = ?, 
+    sellQnty = buyAmount 
+  WHERE id = ?
+  ''', [date, amount, stockId]);
     await db.rawQuery(
-        "UPDATE ${userName}_stocks set pl = ((sellPrice*buyAmount - buyPrice*buyAmount)/(buyPrice*buyAmount))*100 where id=?",
+        "UPDATE ${userPan}_stocks set pl = ((sellPrice*buyAmount - buyPrice*buyAmount)/(buyPrice*buyAmount))*100 where id=?",
         [stockId]);
   }
 
 // delete an already made stock in case of wrongly inputting
-  Future<void> deleteBatch(String userName, int stockId) async {
+  Future<void> deleteBatch(String userPan, int stockId) async {
     final db = await instance.database;
 
-    await db.delete('${userName}_stocks', where: 'id=?', whereArgs: [stockId]);
+    await db.delete('${userPan}_stocks', where: 'id=?', whereArgs: [stockId]);
   }
 
 // update the current price field to calculate profit/loss
   Future<void> addCurrPrice(
-      String userName, String name, double currPrice) async {
+      String userName, String userPan, String name, double currPrice) async {
     final db = await instance.database;
     await db.update(
-      '${userName}_stocks',
+      '${userPan}_stocks',
       {
         'currPrice': currPrice,
       },
@@ -207,17 +206,17 @@ class DatabaseService {
       whereArgs: [name],
     );
     await db.rawQuery(
-        "UPDATE ${userName}_stocks set pl = ((currPrice*buyAmount - buyPrice*buyAmount)/(buyPrice*buyAmount))*100 where name=?",
+        "UPDATE ${userPan}_stocks set pl = ((currPrice*buyAmount - buyPrice*buyAmount)/(buyPrice*buyAmount))*100 where name=?",
         [name]);
   }
 
 // method to calculate profit/loss
   Future<List<Map<String, dynamic>>> getPL(
-      String userName, String stockName, int id) async {
+      String userName, String userPan, String stockName, int id) async {
     final db = await instance.database;
 
     return await db.rawQuery(
-        "SELECT name,pl FROM ${userName}_stocks  WHERE name=? and id=?",
+        "SELECT name,pl FROM ${userPan}_stocks  WHERE name=? and id=?",
         [stockName, id]);
   }
 
@@ -226,25 +225,36 @@ class DatabaseService {
       String userName, String userPan) async {
     final db = await instance.database;
     return await db.rawQuery(
-        'SELECT name, SUM(buyAmount) as total_quantity FROM ${userPan}_stocks GROUP BY name HAVING SUM(buyAmount) > 0');
+      'SELECT name, SUM(buyAmount) as total_quantity FROM ${userPan}_stocks where brockerName=?  GROUP BY name HAVING SUM(buyAmount) > 0 ',
+      [userName],
+    );
   }
 
 // show the average buy amount by excluding the stocks that are already sold
   Future<List<Map<String, dynamic>>> getBuyAvg(
-      String userName, String stockName) async {
+      String userName, String userPan, String stockName) async {
     final db = await instance.database;
     return await db.rawQuery(
-        'SELECT sum(buyamount*buyprice) /sum(remaining) as avg FROM ${userName}_stocks where name=? and remaining>0;',
+        'SELECT sum(buyamount*buyprice) /sum(remaining) as avg FROM ${userPan}_stocks where name=? and remaining>0;',
         [stockName]);
   }
 
   // query for generating statement
-  Future<List<Map<String, dynamic>>> fetchFinancialYearData(
+  // Future<List<Map<String, dynamic>>> fetchFinancialYearDataPL(
+  //     String userName, String date) async {
+  //   final db = await instance.database;
+  //   final result = await db.query(
+  //     '${userName}_stocks',
+  //     where: 'remaining = 0',
+  //   ); // Adjust the query as needed
+  //   return result;
+  // }
+  Future<List<Map<String, dynamic>>> fetchFinancialYearDataPL(
       String userName, String date) async {
     final db = await instance.database;
     final result = await db.query(
       '${userName}_stocks',
-      where: 'remaining > 0',
+      where: 'remaining = 0 AND ',
     ); // Adjust the query as needed
     return result;
   }

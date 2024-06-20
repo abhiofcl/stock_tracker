@@ -35,8 +35,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
 // to be changed
-  Future<void> _deleteUser(String userName) async {
-    await DatabaseService.instance.deleteUser(userName);
+  Future<void> _deleteUser(String userName, String userId) async {
+    await DatabaseService.instance.deleteUser(userName, userId);
     _loadUsers();
   }
 
@@ -151,7 +151,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                       ElevatedButton(
                                         onPressed: () {
-                                          _deleteUser(users[index]['name']);
+                                          _deleteUser(users[index]['name'],
+                                              users[index]['idno']);
                                           Navigator.of(context).pop();
                                         },
                                         child: const Text("Delete"),

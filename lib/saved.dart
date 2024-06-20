@@ -50,8 +50,9 @@ class _SavedState extends State<Saved> {
                   context,
                   MaterialPageRoute(builder: (context) {
                     return SavedStockScreen(
-                      userName: '${widget.userName}',
+                      userName: widget.userName,
                       stockName: stocks[index]['name'],
+                      userPan: widget.userPan,
                     );
                   }),
                 );

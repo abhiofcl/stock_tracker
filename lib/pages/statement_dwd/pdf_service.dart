@@ -25,9 +25,14 @@ class PdfApi {
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: <pw.Widget>[
-                  pw.Text('Geeksforgeeks', textScaleFactor: 2),
+                  pw.Text('P/L Statment for FY- ', textScaleFactor: 2),
                 ],
               ),
+            ),
+            pw.Row(
+              children: <pw.Widget>[
+                pw.Text('PAN no:  ', textScaleFactor: 2),
+              ],
             ),
             pw.Padding(padding: const pw.EdgeInsets.all(10)),
             pw.TableHelper.fromTextArray(
@@ -38,7 +43,9 @@ class PdfApi {
                   'Buy Price',
                   'Buy Amount',
                   'Buy Date',
-                  'Current Price',
+                  'Sell Price',
+                  'Sell Date',
+                  'Sell Qnty',
                   'P/L'
                 ],
                 ...data.map((item) => [
@@ -46,7 +53,9 @@ class PdfApi {
                       item['buyPrice'].toString(),
                       item['buyAmount'].toString(),
                       item['buyDate'].toString(),
-                      item['currPrice'].toString(),
+                      item['sellPrice'].toString(),
+                      item['sellDate'].toString(),
+                      item['sellQnty'].toString(),
                       item['pl'].toString(),
                     ]),
               ],

@@ -6,8 +6,13 @@ import 'package:stock_tracker/pages/statement_dwd/save_and_open.dart';
 
 class Statement extends StatefulWidget {
   final String userName;
+  final String userPan;
   final String stockName;
-  const Statement({super.key, required this.userName, required this.stockName});
+  const Statement(
+      {super.key,
+      required this.userName,
+      required this.userPan,
+      required this.stockName});
 
   @override
   State<Statement> createState() => _StatementState();
@@ -24,11 +29,11 @@ class _StatementState extends State<Statement> {
 
   Future<void> _loadStocks() async {
     final dbStocks = await DatabaseService.instance
-        .getPLStocks(widget.userName, widget.stockName);
+        .getPLStocks(widget.userPan, widget.stockName);
     final dbHStocks = await DatabaseService.instance
-        .getHoldingStocks(widget.userName, widget.stockName);
-    final data = await DatabaseService.instance
-        .fetchFinancialYearData(widget.userName, '2023');
+        .getHoldingStocks(widget.userPan, widget.stockName);
+    // final data = await DatabaseService.instance
+    //     .fetchFinancialYearDataPL(widget.userPan, '2023');
     // final buya = await DatabaseService.instance
     //     .getBuyAvg(widget.userName, widget.stockName);
     // final totalInv = await DatabaseService.instance
@@ -37,13 +42,13 @@ class _StatementState extends State<Statement> {
     setState(() {
       plStocks = dbStocks;
       holdStocks = dbHStocks;
-      stocksData = data;
+      // stocksData = data;
     });
   }
 
   Future<void> _loadSFYST() async {
     final data = await DatabaseService.instance
-        .fetchFinancialYearData(widget.userName, '2023');
+        .fetchFinancialYearDataPL(widget.userPan, '2023');
     // final buya = await DatabaseService.instance
     //     .getBuyAvg(widget.userName, widget.stockName);
     // final totalInv = await DatabaseService.instance
@@ -130,7 +135,7 @@ class _StatementState extends State<Statement> {
             itemBuilder: (context, index) {
               final String formattedDate = DateFormat('yyyy-MM-dd')
                   .format(DateTime.parse(holdStocks[index]['buyDate']));
-              double value = holdStocks[index]['pl'];
+              double value = holdStocks[index]['pl'] ?? 0;
               final formattedValue = value.toStringAsFixed(2);
               return Card(
                 child: ListTile(
