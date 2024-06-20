@@ -25,10 +25,10 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
   final TextEditingController _sellAmountController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _currPriceController = TextEditingController();
-  double buyAvg = 0.0;
-  double? totalInvested = 0.0;
+  late double buyAvg = 0.0;
+  late double totalInvested = 0.0;
   double? pl = 0.0;
-  double? currPrice = 0;
+  late double currPrice = 0;
   @override
   void initState() {
     super.initState();
@@ -44,10 +44,17 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
         widget.userName, widget.userPan, widget.stockName);
 
     setState(() {
-      stocks = dbStocks;
-      buyAvg = buya[0]['avg'] ?? 0;
-      totalInvested = totalInv[0]['totalInv'] ?? 0;
-      currPrice = dbStocks[0]['currPrice'] ?? 0;
+      if (dbStocks.isNotEmpty) {
+        stocks = dbStocks;
+        buyAvg = buya[0]['avg'] ?? 0;
+        totalInvested = totalInv[0]['totalInv'] ?? 0;
+        currPrice = dbStocks[0]['currPrice'] ?? 0;
+      } else {
+        stocks = [];
+        buyAvg = 0;
+        totalInvested = 0;
+        currPrice = 0;
+      }
     });
   }
 

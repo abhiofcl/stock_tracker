@@ -32,12 +32,6 @@ class _StatementState extends State<Statement> {
         .getPLStocks(widget.userPan, widget.stockName);
     final dbHStocks = await DatabaseService.instance
         .getHoldingStocks(widget.userPan, widget.stockName);
-    // final data = await DatabaseService.instance
-    //     .fetchFinancialYearDataPL(widget.userPan, '2023');
-    // final buya = await DatabaseService.instance
-    //     .getBuyAvg(widget.userName, widget.stockName);
-    // final totalInv = await DatabaseService.instance
-    //     .getTotalStockOverview(widget.userName, widget.stockName);
 
     setState(() {
       plStocks = dbStocks;
@@ -46,17 +40,23 @@ class _StatementState extends State<Statement> {
     });
   }
 
-  Future<void> _loadSFYST() async {
-    final data = await DatabaseService.instance
-        .fetchFinancialYearDataPL(widget.userPan, '2023');
-    // final buya = await DatabaseService.instance
-    //     .getBuyAvg(widget.userName, widget.stockName);
-    // final totalInv = await DatabaseService.instance
-    //     .getTotalStockOverview(widget.userName, widget.stockName);
-
-    setState(() {
-      stocksData = data;
-    });
+  Future<void> _loadSFYST(int id) async {
+    // print(widget.userPan);
+    if (id == 1) {
+      final data = await DatabaseService.instance
+          .fetchFinancialYearDataPL(widget.userPan, '2023');
+      setState(() {
+        stocksData = data;
+      });
+    } else if (id == 2) {
+      final now = DateTime.now();
+      // now = now.toIso8601String();
+      final data = await DatabaseService.instance
+          .fetchFinancialYearDataHold(widget.userPan, '2023');
+      setState(() {
+        stocksData = data;
+      });
+    }
   }
 
   @override
@@ -69,11 +69,19 @@ class _StatementState extends State<Statement> {
           actions: [
             IconButton(
               onPressed: () async {
-                _loadSFYST();
+                await _loadSFYST(1);
                 final tablePdf = await PdfApi.generateTable(stocksData);
                 SaveAndOpenDocument.openPdf(tablePdf);
               },
               icon: const Icon(Icons.save),
+            ),
+            IconButton(
+              onPressed: () async {
+                await _loadSFYST(2);
+                final tablePdf = await PdfApi.generateHoldTable(stocksData);
+                SaveAndOpenDocument.openPdf(tablePdf);
+              },
+              icon: const Icon(Icons.grade),
             ),
           ],
           bottom: const TabBar(

@@ -39,11 +39,12 @@ class _AccountScreenState extends State<AccountScreen> {
         _nameController.text.isNotEmpty &&
         _buyPriceController.text.isNotEmpty &&
         _buyAmountController.text.isNotEmpty) {
+      // _selectedDate = ;
       await DatabaseService.instance.insertStock(widget.userPan, {
         'name': _nameController.text,
         'brockerName': widget.userName,
         'buyPrice': double.parse(_buyPriceController.text),
-        'buyDate': _selectedDate.toString(),
+        'buyDate': _selectedDate?.toIso8601String().split('T').first,
         'buyAmount': double.parse(_buyAmountController.text),
         'remaining': double.parse(_buyAmountController.text),
       });

@@ -202,11 +202,11 @@ class DatabaseService {
       {
         'currPrice': currPrice,
       },
-      where: 'name=?',
+      where: 'name=? and remaining >0',
       whereArgs: [name],
     );
     await db.rawQuery(
-        "UPDATE ${userPan}_stocks set pl = ((currPrice*buyAmount - buyPrice*buyAmount)/(buyPrice*buyAmount))*100 where name=?",
+        "UPDATE ${userPan}_stocks set pl = ((currPrice*buyAmount - buyPrice*buyAmount)/(buyPrice*buyAmount))*100 where name=? and remaining>0",
         [name]);
   }
 
@@ -240,21 +240,32 @@ class DatabaseService {
   }
 
   // query for generating statement
+  Future<List<Map<String, dynamic>>> fetchFinancialYearDataPL(
+      String userPan, String date) async {
+    final db = await instance.database;
+    final result = await db.query(
+      '${userPan}_stocks',
+      where: 'remaining = 0',
+    ); // Adjust the query as needed
+    return result;
+  }
+
   // Future<List<Map<String, dynamic>>> fetchFinancialYearDataPL(
   //     String userName, String date) async {
   //   final db = await instance.database;
   //   final result = await db.query(
   //     '${userName}_stocks',
-  //     where: 'remaining = 0',
+  //     where: 'remaining = 0 AND buyDate<=?',
+  //     whereArgs: [date],
   //   ); // Adjust the query as needed
   //   return result;
   // }
-  Future<List<Map<String, dynamic>>> fetchFinancialYearDataPL(
-      String userName, String date) async {
+  Future<List<Map<String, dynamic>>> fetchFinancialYearDataHold(
+      String userPan, String date) async {
     final db = await instance.database;
     final result = await db.query(
-      '${userName}_stocks',
-      where: 'remaining = 0 AND ',
+      '${userPan}_stocks',
+      where: 'remaining > 0',
     ); // Adjust the query as needed
     return result;
   }
