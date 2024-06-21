@@ -20,10 +20,10 @@ class SavedStockScreen extends StatefulWidget {
 
 class _SavedStockScreenState extends State<SavedStockScreen> {
   List<Map<String, dynamic>> stocks = [];
-  DateTime? _selectedDate;
+  // DateTime? _selectedDate;
   String? _formattedDate;
   final TextEditingController _sellAmountController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
+  // final TextEditingController _dateController = TextEditingController();
   final TextEditingController _currPriceController = TextEditingController();
   late double buyAvg = 0.0;
   late double totalInvested = 0.0;
@@ -36,33 +36,36 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
   }
 
   Future<void> _loadStocks() async {
-    final dbStocks = await DatabaseService.instance
-        .getSingleStock(widget.userName, widget.userPan, widget.stockName);
-    final buya = await DatabaseService.instance
-        .getBuyAvg(widget.userName, widget.userPan, widget.stockName);
-    final totalInv = await DatabaseService.instance.getTotalStockOverview(
-        widget.userName, widget.userPan, widget.stockName);
+    try {
+      final dbStocks = await DatabaseService.instance
+          .getSingleStock(widget.userName, widget.userPan, widget.stockName);
+      final buya = await DatabaseService.instance
+          .getBuyAvg(widget.userName, widget.userPan, widget.stockName);
+      final totalInv = await DatabaseService.instance.getTotalStockOverview(
+          widget.userName, widget.userPan, widget.stockName);
 
-    setState(() {
-      if (dbStocks.isNotEmpty) {
-        stocks = dbStocks;
-        buyAvg = buya[0]['avg'] ?? 0;
-        totalInvested = totalInv[0]['totalInv'] ?? 0;
-        currPrice = dbStocks[0]['currPrice'] ?? 0;
-      } else {
-        stocks = [];
-        buyAvg = 0;
-        totalInvested = 0;
-        currPrice = 0;
-      }
-    });
+      setState(() {
+        if (dbStocks.isNotEmpty && totalInv.isNotEmpty && buya.isNotEmpty) {
+          stocks = dbStocks;
+          buyAvg = buya[0]['avg'] ?? 0;
+          totalInvested = totalInv[0]['totalInv'] ?? 0;
+          currPrice = dbStocks[0]['currPrice'] ?? 2;
+        } else {
+          stocks = [];
+          buyAvg = 0;
+          totalInvested = 0;
+          currPrice = 1;
+        }
+      });
+    } catch (e) {
+      debugPrint("error");
+    }
   }
 
   Future<void> _sellStock(int id, String amount, String date) async {
     await DatabaseService.instance.sellStock(
         widget.userName, widget.userPan, id, double.parse(amount), date);
     _loadStocks();
-    print(date);
   }
 
   Future<void> _deleteStock(int id) async {
@@ -73,8 +76,10 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
   Future<void> _setCurrentPrice(String amount) async {
     await DatabaseService.instance.addCurrPrice(widget.userName, widget.userPan,
         widget.stockName, double.parse(amount));
-
     _loadStocks();
+    setState(() {
+      currPrice = double.parse(amount);
+    });
   }
 
   // Future<void> _setPL(int id) async {
@@ -307,7 +312,7 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
                 // Handle OK action
                 // final String formattedDate = DateFormat('yyyy-MM-dd')
                 //     .format();
-                print(_dateController.text);
+                // print(_dateController.text);
                 _sellStock(
                   stocks[index]['id'],
                   _sellAmountController.text,

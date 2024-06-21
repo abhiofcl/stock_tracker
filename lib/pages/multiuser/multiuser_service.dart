@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:stock_tracker/model/stock.dart';
+// import 'package:stock_tracker/model/stock.dart';
 
 class DatabaseService {
   static final DatabaseService instance = DatabaseService._init();
@@ -176,18 +176,19 @@ class DatabaseService {
       String userName, String userPan, String stockName) async {
     final db = await instance.database;
 
-    return await db
-        .query('${userPan}_stocks', where: 'name=?', whereArgs: [stockName]);
+    return await db.query('${userPan}_stocks',
+        where: 'name=? and brockerName=? and remaining>0',
+        whereArgs: [stockName, userName]);
   }
 
-// method to show the totoal invested and profit
+// method to show the total invested and profit
   Future<List<Map<String, dynamic>>> getTotalStockOverview(
       String userName, String userPan, String stockName) async {
     final db = await instance.database;
 
     return await db.rawQuery(
-        "SELECT sum(buyPrice*buyAmount) as totalInv FROM ${userPan}_stocks  WHERE name=?",
-        [stockName]);
+        "SELECT sum(buyPrice*buyAmount) as totalInv FROM ${userPan}_stocks  WHERE name=? and brockerName=?",
+        [stockName, userName]);
   }
 
 // sell a batch of stock and update the fields sell date and price
@@ -273,16 +274,6 @@ class DatabaseService {
     return result;
   }
 
-  // Future<List<Map<String, dynamic>>> fetchFinancialYearDataPL(
-  //     String userName, String date) async {
-  //   final db = await instance.database;
-  //   final result = await db.query(
-  //     '${userName}_stocks',
-  //     where: 'remaining = 0 AND buyDate<=?',
-  //     whereArgs: [date],
-  //   ); // Adjust the query as needed
-  //   return result;
-  // }
   Future<List<Map<String, dynamic>>> fetchFinancialYearDataHold(
       String userPan, String date) async {
     final db = await instance.database;
@@ -297,6 +288,28 @@ class DatabaseService {
     final db = await instance.database;
     final result = await db.rawQuery(
         'SELECT DISTINCT SUBSTR(buyDate, 1, 4) AS year FROM ${userPan}_stocks;');
+    return result;
+  }
+
+  Future<List<Map<String, dynamic>>> fetchFinancialYearWiseDataPL(
+      String userPan, int date) async {
+    String start = '${date - 1}-04-01';
+    String end = '$date-03-31';
+    final db = await instance.database;
+    final result = await db.query('${userPan}_stocks',
+        where: 'remaining = 0 and sellDate BETWEEN ? AND ?',
+        whereArgs: [start, end]); // Adjust the query as needed
+    return result;
+  }
+
+  Future<List<Map<String, dynamic>>> fetchFinancialYearWiseDataHold(
+      String userPan, int date) async {
+    // String start = (date - 1).toString() + '-04-01';
+    String end = '$date-03-31';
+    final db = await instance.database;
+    final result = await db.query('${userPan}_stocks',
+        where: 'remaining > 0 and buyDate<=?',
+        whereArgs: [end]); // Adjust the query as needed
     return result;
   }
 }

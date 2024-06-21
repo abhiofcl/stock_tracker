@@ -7,7 +7,8 @@ class AccountScreen extends StatefulWidget {
   final String userName;
   final String userPan;
 
-  AccountScreen({required this.userName, required this.userPan});
+  const AccountScreen(
+      {super.key, required this.userName, required this.userPan});
 
   @override
   _AccountScreenState createState() => _AccountScreenState();

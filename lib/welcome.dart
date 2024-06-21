@@ -34,8 +34,8 @@ class _WelcomeState extends State<Welcome> {
 
   @override
   Widget build(BuildContext context) {
-    final firstDate = DateTime(DateTime.now().year - 120);
-    final lastDate = DateTime.now();
+    // final firstDate = DateTime(DateTime.now().year - 120);
+    // final lastDate = DateTime.now();
 
     return Center(
       child: SingleChildScrollView(
@@ -115,10 +115,10 @@ class _WelcomeState extends State<Welcome> {
                       controller: _dateController,
                       readOnly: true,
                       decoration: InputDecoration(
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                           labelText: 'Select Date',
                           suffixIcon: IconButton(
-                            icon: Icon(Icons.calendar_month),
+                            icon: const Icon(Icons.calendar_month),
                             onPressed: () => _selectDate(context),
                           )),
                     ),

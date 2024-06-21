@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+// import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import './save_and_open.dart';
@@ -80,18 +80,27 @@ class PdfApi {
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
         build: (pw.Context context) {
-          double totalBuyPrice = data
-              .map((item) => item['buyPrice'] as double)
-              .reduce((a, b) => a + b);
-          double totalQnty = data
-              .map((item) => item['buyAmount'] as double)
-              .reduce((a, b) => a + b);
-          double totalInv = data
-              .map((item) => (item['buyPrice'] * item['buyAmount']) as double)
-              .reduce((a, b) => a + b);
-          double totalPl = data
-              .map((item) => (item['pl'] ?? 0.0) as double)
-              .reduce((a, b) => a + b);
+          double totalBuyPrice = data.isNotEmpty
+              ? data
+                  .map((item) => (item['buyPrice']) as double)
+                  .reduce((a, b) => a + b)
+              : 0.0;
+          double totalQnty = data.isNotEmpty
+              ? data
+                  .map((item) => item['buyAmount'] as double)
+                  .reduce((a, b) => a + b)
+              : 0.0;
+          double totalInv = data.isNotEmpty
+              ? data
+                  .map((item) =>
+                      (item['buyPrice'] * item['buyAmount']) as double)
+                  .reduce((a, b) => a + b)
+              : 0.0;
+          double totalPl = data.isNotEmpty
+              ? data
+                  .map((item) => (item['pl'] ?? 0.0) as double)
+                  .reduce((a, b) => a + b)
+              : 0.0;
           return <pw.Widget>[
             pw.Header(
               level: 0,
@@ -132,7 +141,7 @@ class PdfApi {
                   ],
                 ),
                 <String>[
-                  '',
+                  'Total',
                   '',
                   totalBuyPrice.toString(),
                   totalQnty.toString(),

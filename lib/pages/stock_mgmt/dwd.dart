@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_tracker/pages/multiuser/multiuser_service.dart';
 import 'package:stock_tracker/pages/statement_dwd/pdf_service.dart';
@@ -15,6 +14,7 @@ class Download extends StatefulWidget {
 class _DownloadState extends State<Download> {
   List<Map<String, dynamic>> stocksData = [];
   List<Map<String, dynamic>> years = [];
+  @override
   void initState() {
     super.initState();
     _loadStocks();
@@ -36,10 +36,29 @@ class _DownloadState extends State<Download> {
         stocksData = data;
       });
     } else if (id == 2) {
-      final now = DateTime.now();
+      // final now = DateTime.now();
       // now = now.toIso8601String();
       final data = await DatabaseService.instance
           .fetchFinancialYearDataHold(widget.userPan, '2023');
+      setState(() {
+        stocksData = data;
+      });
+    }
+  }
+
+  Future<void> _loadYearWise(int id, int year) async {
+    // print(widget.userPan);
+    if (id == 1) {
+      final data = await DatabaseService.instance
+          .fetchFinancialYearWiseDataPL(widget.userPan, year);
+      setState(() {
+        stocksData = data;
+      });
+    } else if (id == 2) {
+      // final now = DateTime.now();
+      // now = now.toIso8601String();
+      final data = await DatabaseService.instance
+          .fetchFinancialYearWiseDataHold(widget.userPan, year);
       setState(() {
         stocksData = data;
       });
@@ -72,14 +91,57 @@ class _DownloadState extends State<Download> {
                 },
                 child: const Text("Holding")),
             Expanded(
-              child: ListView.builder(
-                itemCount: years.length,
-                itemBuilder: (context, index) {
-                  return TextButton(
-                    onPressed: () {},
-                    child: Text(years[index]['year']),
-                  );
-                },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ListView.builder(
+                  itemCount: years.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ExpansionTile(
+                        collapsedBackgroundColor:
+                            const Color.fromARGB(96, 198, 173, 51),
+                        title: Text(
+                          years[index]['year'],
+                        ),
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ListTile(
+                              tileColor: Colors.amber,
+                              title: const Text("P/L"),
+                              onTap: () async {
+                                await _loadYearWise(
+                                  1,
+                                  int.parse(years[index]['year']),
+                                );
+                                final tablePdf =
+                                    await PdfApi.generateTable(stocksData);
+                                SaveAndOpenDocument.openPdf(tablePdf);
+                              },
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ListTile(
+                              tileColor: Colors.amber,
+                              title: const Text("Holding"),
+                              onTap: () async {
+                                await _loadYearWise(
+                                  2,
+                                  int.parse(years[index]['year']),
+                                );
+                                final tablePdf =
+                                    await PdfApi.generateHoldTable(stocksData);
+                                SaveAndOpenDocument.openPdf(tablePdf);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
             )
           ],

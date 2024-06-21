@@ -22,6 +22,7 @@ class _StatementState extends State<Statement> {
   List<Map<String, dynamic>> plStocks = [];
   List<Map<String, dynamic>> holdStocks = [];
   List<Map<String, dynamic>> stocksData = [];
+  @override
   void initState() {
     super.initState();
     _loadStocks();
@@ -49,7 +50,7 @@ class _StatementState extends State<Statement> {
         stocksData = data;
       });
     } else if (id == 2) {
-      final now = DateTime.now();
+      // final now = DateTime.now();
       // now = now.toIso8601String();
       final data = await DatabaseService.instance
           .fetchFinancialYearDataHold(widget.userPan, '2023');
@@ -99,15 +100,15 @@ class _StatementState extends State<Statement> {
         ),
         body: TabBarView(
           children: [
-            PLState(),
-            HoldState(),
+            pLState(),
+            holdState(),
           ],
         ),
       ),
     );
   }
 
-  Widget PLState() {
+  Widget pLState() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -133,7 +134,7 @@ class _StatementState extends State<Statement> {
     );
   }
 
-  Widget HoldState() {
+  Widget holdState() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

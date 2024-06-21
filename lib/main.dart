@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:stock_tracker/pages/multiuser/user_login.dart';
-import 'package:stock_tracker/pages/statement_dwd/pdf_service.dart';
-import 'package:stock_tracker/pages/statement_dwd/save_and_open.dart';
-import 'package:stock_tracker/pages/stock_mgmt/dwd.dart';
+// import 'package:stock_tracker/pages/statement_dwd/pdf_service.dart';
+// import 'package:stock_tracker/pages/statement_dwd/save_and_open.dart';
+// import 'package:stock_tracker/pages/stock_mgmt/dwd.dart';
 
 void main() {
   runApp(const MainApp());
@@ -17,7 +17,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Color.fromARGB(255, 107, 140, 156),
+        scaffoldBackgroundColor: const Color.fromARGB(255, 107, 140, 156),
       ),
       // darkTheme: ThemeData.dark(useMaterial3: true),
       home: const MyWidget(),
