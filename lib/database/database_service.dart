@@ -1,15 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-// var databasePath = awaut getData
-// class DataBaseService {
-//   Database? _database;
-//   Future<Database> get database async {
-//     if (_database != null) return _database!;
-//     _database = await _initialize();
-//     return _database!;
-//   }
-// }
 class DataBaseService {
   static final DataBaseService instance = DataBaseService._constructor();
   final String _tableName = "stocks";

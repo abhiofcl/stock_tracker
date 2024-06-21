@@ -6,9 +6,13 @@ import 'package:stock_tracker/pages/stock_mgmt/Statements.dart';
 class SavedStockScreen extends StatefulWidget {
   final String userName;
   final String stockName;
+  final String userPan;
 
   const SavedStockScreen(
-      {super.key, required this.userName, required this.stockName});
+      {super.key,
+      required this.userName,
+      required this.stockName,
+      required this.userPan});
 
   @override
   State<SavedStockScreen> createState() => _SavedStockScreenState();
@@ -16,14 +20,15 @@ class SavedStockScreen extends StatefulWidget {
 
 class _SavedStockScreenState extends State<SavedStockScreen> {
   List<Map<String, dynamic>> stocks = [];
-  DateTime? _selectedDate;
-  final TextEditingController _buyAmountController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
+  // DateTime? _selectedDate;
+  String? _formattedDate;
+  final TextEditingController _sellAmountController = TextEditingController();
+  // final TextEditingController _dateController = TextEditingController();
   final TextEditingController _currPriceController = TextEditingController();
-  double buyAvg = 0.0;
-  double? totalInvested = 0.0;
+  late double buyAvg = 0.0;
+  late double totalInvested = 0.0;
   double? pl = 0.0;
-  double? currPrice = 0;
+  late double currPrice = 0;
   @override
   void initState() {
     super.initState();
@@ -31,37 +36,50 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
   }
 
   Future<void> _loadStocks() async {
-    final dbStocks = await DatabaseService.instance
-        .getSingleStock(widget.userName, widget.stockName);
-    final buya = await DatabaseService.instance
-        .getBuyAvg(widget.userName, widget.stockName);
-    final totalInv = await DatabaseService.instance
-        .getTotalStockOverview(widget.userName, widget.stockName);
+    try {
+      final dbStocks = await DatabaseService.instance
+          .getSingleStock(widget.userName, widget.userPan, widget.stockName);
+      final buya = await DatabaseService.instance
+          .getBuyAvg(widget.userName, widget.userPan, widget.stockName);
+      final totalInv = await DatabaseService.instance.getTotalStockOverview(
+          widget.userName, widget.userPan, widget.stockName);
 
-    setState(() {
-      stocks = dbStocks;
-      buyAvg = buya[0]['avg'] ?? 0;
-      totalInvested = totalInv[0]['totalInv'];
-      currPrice = dbStocks[0]['currPrice'];
-    });
+      setState(() {
+        if (dbStocks.isNotEmpty && totalInv.isNotEmpty && buya.isNotEmpty) {
+          stocks = dbStocks;
+          buyAvg = buya[0]['avg'] ?? 0;
+          totalInvested = totalInv[0]['totalInv'] ?? 0;
+          currPrice = dbStocks[0]['currPrice'] ?? 2;
+        } else {
+          stocks = [];
+          buyAvg = 0;
+          totalInvested = 0;
+          currPrice = 1;
+        }
+      });
+    } catch (e) {
+      debugPrint("error");
+    }
   }
 
   Future<void> _sellStock(int id, String amount, String date) async {
-    await DatabaseService.instance
-        .sellStock(widget.userName, id, double.parse(amount), date);
+    await DatabaseService.instance.sellStock(
+        widget.userName, widget.userPan, id, double.parse(amount), date);
     _loadStocks();
   }
 
   Future<void> _deleteStock(int id) async {
-    await DatabaseService.instance.deleteBatch(widget.userName, id);
+    await DatabaseService.instance.deleteBatch(widget.userPan, id);
     _loadStocks();
   }
 
   Future<void> _setCurrentPrice(String amount) async {
-    await DatabaseService.instance
-        .addCurrPrice(widget.userName, widget.stockName, double.parse(amount));
-
+    await DatabaseService.instance.addCurrPrice(widget.userName, widget.userPan,
+        widget.stockName, double.parse(amount));
     _loadStocks();
+    setState(() {
+      currPrice = double.parse(amount);
+    });
   }
 
   // Future<void> _setPL(int id) async {
@@ -80,9 +98,11 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
+
     if (picked != null) {
       setState(() {
-        _selectedDate = picked;
+        // _selectedDate = picked;
+        _formattedDate = DateFormat('yyyy-MM-dd').format(picked);
       });
     }
   }
@@ -99,6 +119,7 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
                     MaterialPageRoute(builder: (BuildContext context) {
                   return Statement(
                     userName: widget.userName,
+                    userPan: widget.userPan,
                     stockName: widget.stockName,
                   );
                 }));
@@ -252,31 +273,32 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Sell Item'),
-          content: Column(mainAxisSize: MainAxisSize.min, children: [
-            TextFormField(
-              controller: _buyAmountController,
-              decoration: const InputDecoration(
-                labelText: 'Sell Price',
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _sellAmountController,
+                decoration: const InputDecoration(
+                  labelText: 'Sell Price',
+                ),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
               ),
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-            ),
-            TextFormField(
-              controller: _dateController,
-              readOnly: true,
-              decoration: const InputDecoration(
-                labelText: 'Sell Date',
+              // TextFormField(
+              //   controller: _dateController,
+              //   readOnly: true,
+              //   decoration: const InputDecoration(
+              //     labelText: 'Sell Date',
+              //   ),
+              //   keyboardType:
+              //       const TextInputType.numberWithOptions(decimal: true),
+              // ),
+              ElevatedButton(
+                onPressed: () => _selectDate(context),
+                child: Text(_formattedDate ?? 'Select Date'),
               ),
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-            ),
-            ElevatedButton(
-              onPressed: () => _selectDate(context),
-              child: Text(_selectedDate == null
-                  ? 'Select Date'
-                  : _selectedDate!.toLocal().toString().split(' ')[0]),
-            ),
-          ]),
+            ],
+          ),
           actions: <Widget>[
             TextButton(
               child: const Text('Cancel'),
@@ -288,10 +310,13 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
               child: const Text('OK'),
               onPressed: () {
                 // Handle OK action
+                // final String formattedDate = DateFormat('yyyy-MM-dd')
+                //     .format();
+                // print(_dateController.text);
                 _sellStock(
                   stocks[index]['id'],
-                  _buyAmountController.text,
-                  _dateController.text,
+                  _sellAmountController.text,
+                  _formattedDate!,
                 );
                 Navigator.of(context).pop();
               },
