@@ -40,23 +40,28 @@ class PdfApi {
               data: <List<String>>[
                 <String>[
                   'Name',
+                  'Buy Date',
                   'Buy Price',
                   'Buy Amount',
-                  'Buy Date',
-                  'Sell Price',
+                  'Invested Amount',
                   'Sell Date',
+                  'Sell Price',
                   'Sell Qnty',
+                  'Sell Amount',
                   'P/L'
                 ],
                 ...data.map((item) => [
                       item['name'].toString(),
+                      item['buyDate'].toString(),
                       item['buyPrice'].toString(),
                       item['buyAmount'].toString(),
-                      item['buyDate'].toString(),
-                      item['sellPrice'].toString(),
+                      (item['buyPrice'] * item['buyAmount']).toString(),
                       item['sellDate'].toString(),
+                      item['sellPrice'].toString(),
                       item['sellQnty'].toString(),
-                      item['pl'].toString(),
+                      (item['sellPrice'] * item['sellQnty']).toString(),
+                      (item['pl'] * item['buyPrice'] * item['buyAmount'] / 100)
+                          .toString(),
                     ]),
               ],
             ),
@@ -75,13 +80,25 @@ class PdfApi {
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
         build: (pw.Context context) {
+          double totalBuyPrice = data
+              .map((item) => item['buyPrice'] as double)
+              .reduce((a, b) => a + b);
+          double totalQnty = data
+              .map((item) => item['buyAmount'] as double)
+              .reduce((a, b) => a + b);
+          double totalInv = data
+              .map((item) => (item['buyPrice'] * item['buyAmount']) as double)
+              .reduce((a, b) => a + b);
+          double totalPl = data
+              .map((item) => (item['pl'] ?? 0.0) as double)
+              .reduce((a, b) => a + b);
           return <pw.Widget>[
             pw.Header(
               level: 0,
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: <pw.Widget>[
-                  pw.Text('P/L Statment for FY- ', textScaleFactor: 2),
+                  pw.Text('Holding Statment for FY- ', textScaleFactor: 2),
                 ],
               ),
             ),
@@ -96,16 +113,33 @@ class PdfApi {
               data: <List<String>>[
                 <String>[
                   'Name',
-                  'Buy Price',
-                  'Buy Amount',
                   'Buy Date',
+                  'Buy Price',
+                  'Buy Quantity',
+                  'Invested Amount',
+                  'Current Price',
+                  'P/L'
                 ],
-                ...data.map((item) => [
-                      item['name'].toString(),
-                      item['buyPrice'].toString(),
-                      item['buyAmount'].toString(),
-                      item['buyDate'].toString(),
-                    ]),
+                ...data.map(
+                  (item) => [
+                    item['name'].toString(),
+                    item['buyDate'].toString(),
+                    item['buyPrice'].toString(),
+                    item['buyAmount'].toString(),
+                    (item['buyPrice'] * item['buyAmount']).toString(),
+                    item['currPrice'].toString(),
+                    item['pl'].toString(),
+                  ],
+                ),
+                <String>[
+                  '',
+                  '',
+                  totalBuyPrice.toString(),
+                  totalQnty.toString(),
+                  totalInv.toString(),
+                  '',
+                  totalPl.toString()
+                ],
               ],
             ),
           ];

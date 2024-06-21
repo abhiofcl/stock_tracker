@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stock_tracker/pages/multiuser/display.dart';
 import 'package:stock_tracker/pages/multiuser/multiuser_service.dart';
+import 'package:stock_tracker/pages/stock_mgmt/dwd.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,7 +11,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  List<Map<String, dynamic>> users = [];
+  // List<Map<String, dynamic>> users = [];
+  Map<String, List<String>> users = {};
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _idNoController = TextEditingController();
 
@@ -21,7 +23,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _loadUsers() async {
-    final dbUsers = await DatabaseService.instance.getUsers();
+    // final dbUsers = await DatabaseService.instance.getUsers();
+    final dbUsers = await DatabaseService.instance.getUsersGroupedByPanNo();
+
     setState(() {
       users = dbUsers;
     });
@@ -42,6 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final panNos = users.keys.toList();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black12,
@@ -114,66 +119,82 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: users.length,
+              itemCount: panNos.length,
               itemBuilder: (context, index) {
+                final panNo = panNos[index];
+                final brokers = users[panNo];
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: ListTile(
-                    iconColor: Colors.red,
-                    leading: const Icon(Icons.person),
-                    contentPadding: const EdgeInsets.all(8),
-                    tileColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    title: Text(users[index]['name']),
-                    subtitle: Text(users[index]['idno']),
-                    onLongPress: () => showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return Dialog(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Text("Delete this user??"),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text("Cancel"),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          _deleteUser(users[index]['name'],
-                                              users[index]['idno']);
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text("Delete"),
-                                      )
-                                    ],
-                                  )
-                                ],
-                              ),
+                  child: ExpansionTile(
+                    leading: IconButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => Download(
+                              userPan: panNo,
                             ),
-                          );
-                        }),
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => AccountScreen(
-                            userName: users[index]['name'],
-                            userPan: users[index]['idno'],
                           ),
+                        );
+                      },
+                      icon: const Icon(Icons.file_copy),
+                    ),
+                    title: Text(panNo),
+                    children: brokers!.map((brokername) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ListTile(
+                          tileColor: Colors.blue[300],
+                          title: Text(brokername),
+                          // subtitle: Text(users[index]['idno']),
+                          onLongPress: () => showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Dialog(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Text("Delete this user??"),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: const Text("Cancel"),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                _deleteUser(brokername, panNo);
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: const Text("Delete"),
+                                            )
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }),
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => AccountScreen(
+                                  userName: brokername,
+                                  userPan: panNo,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       );
-                    },
+                    }).toList(),
                   ),
                 );
               },

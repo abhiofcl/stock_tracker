@@ -80,6 +80,29 @@ class DatabaseService {
     return await db.query('users');
   }
 
+  Future<Map<String, List<String>>> getUsersGroupedByPanNo() async {
+    // Query to get the data grouped by panNo
+    final db = await instance.database;
+    final List<Map<String, dynamic>> result = await db.rawQuery('''
+    SELECT idno, name
+    FROM users
+    ORDER BY idno, name
+  ''');
+
+    // Transform the result into a Map
+    Map<String, List<String>> groupedData = {};
+    for (var row in result) {
+      final String panNo = row['idno'];
+      final String brokername = row['name'];
+      if (!groupedData.containsKey(panNo)) {
+        groupedData[panNo] = [];
+      }
+      groupedData[panNo]!.add(brokername);
+    }
+
+    return groupedData;
+  }
+
 // insert stocks
   Future<void> insertStock(String userId, Map<String, dynamic> stock) async {
     final db = await instance.database;
@@ -267,6 +290,13 @@ class DatabaseService {
       '${userPan}_stocks',
       where: 'remaining > 0',
     ); // Adjust the query as needed
+    return result;
+  }
+
+  Future<List<Map<String, dynamic>>> fetchYears(String userPan) async {
+    final db = await instance.database;
+    final result = await db.rawQuery(
+        'SELECT DISTINCT SUBSTR(buyDate, 1, 4) AS year FROM ${userPan}_stocks;');
     return result;
   }
 }

@@ -101,17 +101,17 @@ class _AccountScreenState extends State<AccountScreen> {
               ),
             ),
             TextFormField(
-              controller: _buyPriceController,
+              controller: _buyAmountController,
               decoration: const InputDecoration(
-                labelText: 'Buy Price',
+                labelText: 'Buy Quantity',
               ),
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
             ),
             TextFormField(
-              controller: _buyAmountController,
+              controller: _buyPriceController,
               decoration: const InputDecoration(
-                labelText: 'Buy Amount',
+                labelText: 'Buy Price',
               ),
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
