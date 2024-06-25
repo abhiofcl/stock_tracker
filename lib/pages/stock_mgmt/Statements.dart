@@ -30,9 +30,9 @@ class _StatementState extends State<Statement> {
 
   Future<void> _loadStocks() async {
     final dbStocks = await DatabaseService.instance
-        .getPLStocks(widget.userPan, widget.stockName);
+        .getPLStocks(widget.userPan, widget.userName, widget.stockName);
     final dbHStocks = await DatabaseService.instance
-        .getHoldingStocks(widget.userPan, widget.stockName);
+        .getHoldingStocks(widget.userPan, widget.userName, widget.stockName);
 
     setState(() {
       plStocks = dbStocks;
@@ -41,24 +41,24 @@ class _StatementState extends State<Statement> {
     });
   }
 
-  Future<void> _loadSFYST(int id) async {
-    // print(widget.userPan);
-    if (id == 1) {
-      final data = await DatabaseService.instance
-          .fetchFinancialYearDataPL(widget.userPan, '2023');
-      setState(() {
-        stocksData = data;
-      });
-    } else if (id == 2) {
-      // final now = DateTime.now();
-      // now = now.toIso8601String();
-      final data = await DatabaseService.instance
-          .fetchFinancialYearDataHold(widget.userPan, '2023');
-      setState(() {
-        stocksData = data;
-      });
-    }
-  }
+  // Future<void> _loadSFYST(int id) async {
+  //   // print(widget.userPan);
+  //   if (id == 1) {
+  //     final data = await DatabaseService.instance
+  //         .fetchFinancialYearDataPL(widget.userPan, '2023');
+  //     setState(() {
+  //       stocksData = data;
+  //     });
+  //   } else if (id == 2) {
+  //     // final now = DateTime.now();
+  //     // now = now.toIso8601String();
+  //     final data = await DatabaseService.instance
+  //         .fetchFinancialYearDataHold(widget.userPan, '2023');
+  //     setState(() {
+  //       stocksData = data;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -67,24 +67,26 @@ class _StatementState extends State<Statement> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Statement Page"),
-          actions: [
-            IconButton(
-              onPressed: () async {
-                await _loadSFYST(1);
-                final tablePdf = await PdfApi.generateTable(stocksData);
-                SaveAndOpenDocument.openPdf(tablePdf);
-              },
-              icon: const Icon(Icons.save),
-            ),
-            IconButton(
-              onPressed: () async {
-                await _loadSFYST(2);
-                final tablePdf = await PdfApi.generateHoldTable(stocksData);
-                SaveAndOpenDocument.openPdf(tablePdf);
-              },
-              icon: const Icon(Icons.grade),
-            ),
-          ],
+          // actions: [
+          //   IconButton(
+          //     onPressed: () async {
+          //       await _loadSFYST(1);
+          //       final tablePdf =
+          //           await PdfApi.generateTable(widget.userPan, stocksData);
+          //       SaveAndOpenDocument.openPdf(tablePdf);
+          //     },
+          //     icon: const Icon(Icons.save),
+          //   ),
+          //   IconButton(
+          //     onPressed: () async {
+          //       await _loadSFYST(2);
+          //       final tablePdf =
+          //           await PdfApi.generateHoldTable(widget.userPan, stocksData);
+          //       SaveAndOpenDocument.openPdf(tablePdf);
+          //     },
+          //     icon: const Icon(Icons.grade),
+          //   ),
+          // ],
           bottom: const TabBar(
             tabs: [
               Tab(
