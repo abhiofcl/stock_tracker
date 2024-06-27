@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:stock_tracker/pages/multiuser/multiuser_service.dart';
+import 'package:stock_tracker/database/multiuser_service.dart';
 import 'package:stock_tracker/pages/stock_mgmt/Statements.dart';
 
 class SavedStockScreen extends StatefulWidget {
@@ -111,22 +111,23 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("All stocks"),
-        actions: <Widget>[
-          IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                  return Statement(
-                    userName: widget.userName,
-                    userPan: widget.userPan,
-                    stockName: widget.stockName,
-                  );
-                }));
-              },
-              icon: const Icon(Icons.menu_book))
-        ],
+        title: const Text("Holding stocks"),
+        // actions: <Widget>[
+        //   IconButton(
+        //       onPressed: () {
+        //         Navigator.push(context,
+        //             MaterialPageRoute(builder: (BuildContext context) {
+        //           return Statement(
+        //             userName: widget.userName,
+        //             userPan: widget.userPan,
+        //             stockName: widget.stockName,
+        //           );
+        //         }));
+        //       },
+        //       icon: const Icon(Icons.menu_book))
+        // ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.monetization_on_outlined),
         onPressed: () => _showCurrPriceDialog(context),
@@ -207,60 +208,115 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
             ],
           ),
           Expanded(
-            child: ListView.builder(
-                itemCount: stocks.length,
-                itemBuilder: (context, index) {
-                  final String formattedDate = DateFormat('yyyy-MM-dd')
-                      .format(DateTime.parse(stocks[index]['buyDate']));
-                  double value = stocks[index]['pl'] ?? 0;
-                  final formattedValue = value.toStringAsFixed(2);
-                  double rem = stocks[index]['remaining'];
-                  return Card(
-                    child: ListTile(
-                      tileColor: rem > 0
-                          ? value >= 0
-                              ? Colors.green[300]
-                              : Colors.red[300]
-                          : Colors.teal[100],
-                      leading: Text('${stocks[index]['buyAmount']}'),
-                      title: Text(
-                          '$formattedDate - Rs.${stocks[index]['buyPrice']}  $formattedValue%'),
-                      trailing: PopupMenuButton(
-                        onSelected: (String result) {
-                          switch (result) {
-                            case 'Modify':
-                              _showModifyDialog(context);
-                              break;
-                            case 'Sell':
-                              _showSellDialog(context, index);
-                              break;
-                            case 'Delete':
-                              _showDeleteDialog(context, index);
-                              break;
-                          }
-                        },
-                        itemBuilder: (BuildContext context) =>
-                            <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(
-                            value: 'Modify',
-                            child: Text('Modify'),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'Sell',
-                            child: Text('Sell'),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'Delete',
-                            child: Text('Delete'),
-                          ),
-                        ],
-                      ),
-                      // subtitle: Text(
-                      //   'Price: ${stocks[index]['buyPrice']}, Date: ${stocks[index]['buyDate']}, Amount: ${stocks[index]['buyAmount']}',
-                      // ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    showBottomBorder: true,
+                    border: TableBorder.all(
+                      borderRadius: BorderRadius.circular(8),
+                      width: 1,
                     ),
-                  );
-                }),
+                    headingRowColor: MaterialStateColor.resolveWith(
+                        (states) => Color.fromARGB(255, 144, 150, 202)),
+                    columns: const [
+                      DataColumn(label: Text('Buy Date')),
+                      DataColumn(label: Text('Buy Quantity')),
+                      DataColumn(label: Text('Buy Price')),
+                      DataColumn(label: Text('Invested Amount')),
+                      DataColumn(label: Text('Present Value')),
+                      DataColumn(label: Text('P/L')),
+                      DataColumn(label: Text('% P/L')),
+                      DataColumn(label: Text('Actions')),
+                    ],
+                    rows: List<DataRow>.generate(
+                      stocks.length,
+                      (index) {
+                        final stock = stocks[index];
+                        final String formattedDate = DateFormat('yyyy-MM-dd')
+                            .format(DateTime.parse(stock['buyDate']));
+                        final String formattedSellDate =
+                            stock['sellDate'] != null
+                                ? DateFormat('yyyy-MM-dd')
+                                    .format(DateTime.parse(stock['sellDate']))
+                                : 'N/A';
+                        double value = stock['pl'] ?? 0;
+                        final formattedValue = value.toStringAsFixed(2);
+                        double pl = ((stock['pl'] ?? 0) *
+                                stock['buyPrice'] *
+                                stock['buyAmount'] /
+                                100) ??
+                            0;
+                        final formattedPl = pl.toStringAsFixed(2);
+                        double rem = stock['remaining'];
+
+                        return DataRow(
+                          cells: [
+                            DataCell(Text(formattedDate)),
+                            DataCell(Text('${stock['buyAmount']}')),
+                            DataCell(Text('${stock['buyPrice']}')),
+                            DataCell(
+                              Text(
+                                (stock['buyAmount'] * stock['buyPrice'])
+                                    .toString(),
+                              ),
+                            ),
+                            DataCell(Text(
+                                ((stock['currPrice'] ?? 0) * stock['buyAmount'])
+                                        ?.toString() ??
+                                    'N/A')),
+                            DataCell(Text('$formattedPl')),
+                            DataCell(Text('$formattedValue')),
+                            DataCell(
+                              PopupMenuButton<String>(
+                                onSelected: (String result) {
+                                  switch (result) {
+                                    case 'Modify':
+                                      _showModifyDialog(context);
+                                      break;
+                                    case 'Sell':
+                                      _showSellDialog(context, index);
+                                      break;
+                                    case 'Delete':
+                                      _deleteStock(stock['id']);
+                                      break;
+                                  }
+                                },
+                                itemBuilder: (BuildContext context) =>
+                                    <PopupMenuEntry<String>>[
+                                  const PopupMenuItem<String>(
+                                    value: 'Modify',
+                                    child: Text('Modify'),
+                                  ),
+                                  const PopupMenuItem<String>(
+                                    value: 'Sell',
+                                    child: Text('Sell'),
+                                  ),
+                                  const PopupMenuItem<String>(
+                                    value: 'Delete',
+                                    child: Text('Delete'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          color: MaterialStateColor.resolveWith(
+                            (states) => rem > 0
+                                ? value >= 0
+                                    ? Colors.green[300]!
+                                    : Colors.red[300]!
+                                : Colors.teal[100]!,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
         ],
       ),

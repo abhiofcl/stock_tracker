@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:stock_tracker/pages/multiuser/multiuser_service.dart';
+import 'package:stock_tracker/database/multiuser_service.dart';
+import 'package:stock_tracker/pages/stock_mgmt/sold.dart';
+import 'package:stock_tracker/pages/stock_mgmt/stock_mgmt.dart';
 import 'package:stock_tracker/saved.dart';
 // import 'database_service.dart';
 
 class AccountScreen extends StatefulWidget {
   final String userName;
   final String userPan;
+  final String stockName;
 
   const AccountScreen(
-      {super.key, required this.userName, required this.userPan});
+      {super.key,
+      required this.userName,
+      required this.userPan,
+      required this.stockName});
 
   @override
   _AccountScreenState createState() => _AccountScreenState();
 }
 
 class _AccountScreenState extends State<AccountScreen> {
-  final TextEditingController _nameController = TextEditingController();
+  // final TextEditingController _nameController = TextEditingController();
   final TextEditingController _buyPriceController = TextEditingController();
   final TextEditingController _buyAmountController = TextEditingController();
   DateTime? _selectedDate;
@@ -37,19 +43,19 @@ class _AccountScreenState extends State<AccountScreen> {
 
   Future<void> _addStock() async {
     if (_selectedDate != null &&
-        _nameController.text.isNotEmpty &&
+        // _nameController.text.isNotEmpty &&
         _buyPriceController.text.isNotEmpty &&
         _buyAmountController.text.isNotEmpty) {
       // _selectedDate = ;
       await DatabaseService.instance.insertStock(widget.userPan, {
-        'name': _nameController.text,
+        'name': widget.stockName,
         'brockerName': widget.userName,
         'buyPrice': double.parse(_buyPriceController.text),
         'buyDate': _selectedDate?.toIso8601String().split('T').first,
         'buyAmount': double.parse(_buyAmountController.text),
         'remaining': double.parse(_buyAmountController.text),
       });
-      _nameController.clear();
+      // _nameController.clear();
       _buyPriceController.clear();
       _buyAmountController.clear();
       _selectedDate = null;
@@ -75,32 +81,18 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.userName}\'s Account'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.wallet),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                return Saved(
-                  userName: widget.userName,
-                  userPan: widget.userPan,
-                );
-              }));
-            },
-          ),
-        ],
+        title: Text('${widget.stockName}\'s Stocks'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextFormField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Stock Name',
-              ),
-            ),
+            // TextFormField(
+            //   controller: _nameController,
+            //   decoration: const InputDecoration(
+            //     labelText: 'Stock Name',
+            //   ),
+            // ),
             TextFormField(
               controller: _buyAmountController,
               decoration: const InputDecoration(
@@ -128,6 +120,34 @@ class _AccountScreenState extends State<AccountScreen> {
             ElevatedButton(
               onPressed: _addStock,
               child: const Text('Add Stock'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (BuildContext context) {
+                  return SavedStockScreen(
+                    userName: widget.userName,
+                    stockName: widget.stockName,
+                    userPan: widget.userPan,
+                  );
+                }));
+              },
+              child: const Text("Show Holding"),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (BuildContext context) {
+                  return SoldStockScreen(
+                    userName: widget.userName,
+                    stockName: widget.stockName,
+                    userPan: widget.userPan,
+                  );
+                }));
+              },
+              child: const Text("Show Sold"),
             ),
           ],
         ),
