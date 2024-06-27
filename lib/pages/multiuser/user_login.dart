@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:stock_tracker/pages/multiuser/display.dart';
-import 'package:stock_tracker/pages/multiuser/multiuser_service.dart';
+// import 'package:stock_tracker/pages/multiuser/display.dart';
+import 'package:stock_tracker/database/multiuser_service.dart';
 import 'package:stock_tracker/pages/stock_mgmt/dwd.dart';
 import 'package:stock_tracker/saved.dart';
 
@@ -172,16 +172,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: ExpansionTile(
                     leading: IconButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => Download(
-                              userPan: panNo,
-                            ),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.document_scanner),
+                      onPressed: () {},
+                      icon: const Icon(Icons.delete),
                     ),
                     title: Text(panNo),
                     children: [
@@ -191,6 +183,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: ListTile(
+                              leading: IconButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => Download(
+                                        userPan: panNo,
+                                        brockerName: schemeName,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.document_scanner),
+                              ),
                               tileColor: Colors.blue[300],
                               title: Text(schemeName),
                               onLongPress: () => showDialog(
@@ -250,6 +255,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: ListTile(
+                              leading: IconButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => Download(
+                                        userPan: panNo,
+                                        brockerName: brokername,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.edit_document),
+                              ),
                               tileColor: Colors.blue[300],
                               title: Text(brokername),
                               onLongPress: () => showDialog(

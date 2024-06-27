@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:stock_tracker/pages/multiuser/multiuser_service.dart';
+import 'package:stock_tracker/database/multiuser_service.dart';
+import 'package:stock_tracker/pages/stock_mgmt/sold.dart';
 import 'package:stock_tracker/pages/stock_mgmt/stock_mgmt.dart';
 import 'package:stock_tracker/saved.dart';
 // import 'database_service.dart';
@@ -139,14 +140,14 @@ class _AccountScreenState extends State<AccountScreen> {
               onPressed: () {
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (BuildContext context) {
-                  return SavedStockScreen(
+                  return SoldStockScreen(
                     userName: widget.userName,
                     stockName: widget.stockName,
                     userPan: widget.userPan,
                   );
                 }));
               },
-              child: const Text("Show Holding"),
+              child: const Text("Show Sold"),
             ),
           ],
         ),

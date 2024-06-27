@@ -1,5 +1,6 @@
 import 'dart:io';
 // import 'package:path_provider/path_provider.dart';
+import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import './save_and_open.dart';
@@ -12,14 +13,36 @@ class User {
 }
 
 class PdfApi {
-  static Future<File> generateTable(
-      String panNo, int fyYear, List<Map<String, dynamic>> data) async {
+  static Future<File> generateTable(String panNo, String brokerName, int fyYear,
+      List<Map<String, dynamic>> data) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
         build: (pw.Context context) {
+          double totalPl = data.isNotEmpty
+              ? data
+                  .map((item) => ((item['pl'] ?? 0) *
+                          item['buyPrice'] *
+                          item['buyAmount'] /
+                          100 ??
+                      0.0) as double)
+                  .reduce((a, b) => a + b)
+              : 0.0;
+          double totalInv = data.isNotEmpty
+              ? data
+                  .map((item) =>
+                      (item['buyPrice'] * item['buyAmount']) as double)
+                  .reduce((a, b) => a + b)
+              : 0.0;
+
+          double totalPv = data.isNotEmpty
+              ? data
+                  .map((item) =>
+                      ((item['sellPrice'] ?? 0) * item['buyAmount']) as double)
+                  .reduce((a, b) => a + b)
+              : 0.0;
           return <pw.Widget>[
             pw.Header(
               level: 0,
@@ -36,6 +59,11 @@ class PdfApi {
                 pw.Text('PAN no:  $panNo', textScaleFactor: 2),
               ],
             ),
+            pw.Row(
+              children: <pw.Widget>[
+                pw.Text('Client id/Name:  $brokerName', textScaleFactor: 1),
+              ],
+            ),
             pw.Padding(padding: const pw.EdgeInsets.all(10)),
             pw.TableHelper.fromTextArray(
               context: context,
@@ -44,27 +72,43 @@ class PdfApi {
                   'Name',
                   'Buy Date',
                   'Buy Price',
-                  'Buy Amount',
+                  'Buy Quantity',
                   'Invested Amount',
                   'Sell Date',
                   'Sell Price',
-                  'Sell Qnty',
                   'Sell Amount',
                   'P/L'
                 ],
-                ...data.map((item) => [
-                      item['name'].toString(),
-                      item['buyDate'].toString(),
-                      item['buyPrice'].toString(),
-                      item['buyAmount'].toString(),
-                      (item['buyPrice'] * item['buyAmount']).toString(),
-                      item['sellDate'].toString(),
-                      item['sellPrice'].toString(),
-                      item['sellQnty'].toString(),
-                      (item['sellPrice'] * item['sellQnty']).toString(),
-                      (item['pl'] * item['buyPrice'] * item['buyAmount'] / 100)
-                          .toString(),
-                    ]),
+                ...data.map(
+                  (item) => [
+                    item['name'].toString(),
+                    (DateFormat('dd-MM-yyyy')
+                            .format(DateTime.parse(item['buyDate'])))
+                        .toString(),
+                    item['buyPrice'].toString(),
+                    item['buyAmount'].ceil().toString(),
+                    (item['buyPrice'] * item['buyAmount']).ceil().toString(),
+                    (DateFormat('dd-MM-yyyy')
+                            .format(DateTime.parse(item['sellDate'])))
+                        .toString(),
+                    item['sellPrice'].ceil().toString(),
+                    (item['sellPrice'] * item['sellQnty']).toString(),
+                    ((item['pl'] * item['buyPrice'] * item['buyAmount'] / 100))
+                        .ceil()
+                        .toString(),
+                  ],
+                ),
+                <String>[
+                  'Total',
+                  '',
+                  '',
+                  '',
+                  totalInv.ceil().toString(),
+                  '',
+                  '',
+                  totalPv.ceil().toString(),
+                  totalPl.ceil().toString(),
+                ],
               ],
             ),
           ];
@@ -75,8 +119,8 @@ class PdfApi {
     return SaveAndOpenDocument.savePdf(name: 'table_pdf.pdf', pdf: pdf);
   }
 
-  static Future<File> generateHoldTable(
-      String panNo, int fyYear, List<Map<String, dynamic>> data) async {
+  static Future<File> generateHoldTable(String panNo, String brokerName,
+      int fyYear, List<Map<String, dynamic>> data) async {
     final pdf = pw.Document();
     // int days=0;
     pdf.addPage(
@@ -141,6 +185,11 @@ class PdfApi {
                 pw.Text('PAN no:  $panNo', textScaleFactor: 2),
               ],
             ),
+            pw.Row(
+              children: <pw.Widget>[
+                pw.Text('Client id/Name:  $brokerName', textScaleFactor: 1),
+              ],
+            ),
             pw.Padding(padding: const pw.EdgeInsets.all(10)),
             pw.TableHelper.fromTextArray(
               context: context,
@@ -155,27 +204,30 @@ class PdfApi {
                   'Present Value',
                   'P/L',
                   'Holding days',
-                  'sell date'
                 ],
                 ...data.map(
                   (item) => [
                     item['name'].toString(),
-                    item['buyDate'].toString(),
-                    item['buyPrice'].toString(),
-                    item['buyAmount'].toString(),
-                    (item['buyPrice'] * item['buyAmount']).toString(),
-                    item['currPrice'].toString(),
-                    ((item['currPrice'] ?? 0) * item['buyAmount']).toString(),
+                    (DateFormat('dd-MM-yyyy')
+                            .format(DateTime.parse(item['buyDate'])))
+                        .toString(),
+                    item['buyPrice'].ceil().toString(),
+                    item['buyAmount'].ceil().toString(),
+                    (item['buyPrice'] * item['buyAmount']).ceil().toString(),
+                    (item['currPrice'] ?? 0).ceil().toString(),
+                    ((item['currPrice'] ?? 0) * item['buyAmount'])
+                        .ceil()
+                        .toString(),
                     ((item['pl'] ?? 0) *
                             item['buyPrice'] *
                             item['buyAmount'] /
                             100)
+                        .ceil()
                         .toString(),
                     (DateTime.parse(end)
                             .difference(DateTime.parse(item['buyDate']))
                             .inDays)
                         .toString(),
-                    item['sellDate'].toString(),
                   ],
                 ),
                 <String>[

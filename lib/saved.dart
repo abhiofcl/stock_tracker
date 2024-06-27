@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stock_tracker/pages/multiuser/display.dart';
-import 'package:stock_tracker/pages/multiuser/multiuser_service.dart';
+import 'package:stock_tracker/database/multiuser_service.dart';
 import 'package:stock_tracker/pages/stock_mgmt/stock_mgmt.dart';
 
 class Saved extends StatefulWidget {
@@ -50,6 +50,7 @@ class _SavedState extends State<Saved> {
       appBar: AppBar(
         title: const Text("Saved Stocks"),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () => showDialog(
@@ -112,6 +113,7 @@ class _SavedState extends State<Saved> {
               itemBuilder: (context, index) {
                 return Card(
                   child: ListTile(
+                    leading: Text('${index + 1}'),
                     title: Text(stocks[index]['stockName']),
                     // subtitle: Text(
                     //   'Price: ${stocks[index]['buyPrice']}, Date: ${stocks[index]['buyDate']}, Amount: ${stocks[index]['buyAmount']}',

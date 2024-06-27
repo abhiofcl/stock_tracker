@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:stock_tracker/pages/multiuser/multiuser_service.dart';
+import 'package:stock_tracker/database/multiuser_service.dart';
 import 'package:stock_tracker/pages/statement_dwd/pdf_service.dart';
 import 'package:stock_tracker/pages/statement_dwd/save_and_open.dart';
 

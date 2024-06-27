@@ -119,10 +119,11 @@ class DatabaseService {
   Future<void> addFY(String date) async {
     int year = int.parse(date.substring(0, 4));
     DateTime dt = DateTime.parse(date);
-    String start = '$year-04-01';
+    String start = '$year-03-31';
     String end = '${year + 1}-03-31';
     final db = await instance.database;
     await createFYTable();
+
     if (dt.isAfter(DateTime.parse(start)) && dt.isBefore(DateTime.parse(end))) {
       await db.insert('fy_table', {
         'fy': (year + 1).toString(),
@@ -139,8 +140,8 @@ class DatabaseService {
   Future<List<Map<String, dynamic>>> getFY(String userPan) async {
     final db = await instance.database;
     try {
-      return await db.query('fy_table',
-          distinct: true, columns: ['fy'], orderBy: 'fy');
+      return await db
+          .rawQuery('SELECT DISTINCT fy FROM fy_table ORDER BY fy DESC');
     } on DatabaseException catch (e) {
       if (e.isNoSuchTableError()) {
         // Table does not exist, return an empty list
@@ -177,7 +178,7 @@ class DatabaseService {
     final db = await instance.database;
     try {
       return await db.query('stocks_${brockername}_${userPan}',
-          distinct: true, columns: ['stockName']);
+          distinct: true, columns: ['stockName'], orderBy: 'stockName');
     } on DatabaseException catch (e) {
       if (e.isNoSuchTableError()) {
         // Table does not exist, return an empty list
@@ -352,7 +353,18 @@ class DatabaseService {
     final db = await instance.database;
 
     return await db.query('${userPan}_stocks',
-        where: 'name=? and brockerName=? ', whereArgs: [stockName, userName]);
+        where: 'name=? and brockerName=? and remaining >0',
+        whereArgs: [stockName, userName]);
+  }
+
+// get a single stock value to show the company names in a grouped fashion
+  Future<List<Map<String, dynamic>>> getSingleStockSold(
+      String userName, String userPan, String stockName) async {
+    final db = await instance.database;
+
+    return await db.query('${userPan}_stocks',
+        where: 'name=? and brockerName=? and remaining=0',
+        whereArgs: [stockName, userName]);
   }
 
 // method to show the total invested and profit
@@ -481,13 +493,14 @@ class DatabaseService {
   }
 
   Future<List<Map<String, dynamic>>> fetchFinancialYearWiseDataPL(
-      String userPan, int date) async {
+      String userPan, String brokerName, int date) async {
     String start = '${date - 1}-04-01';
     String end = '$date-03-31';
     final db = await instance.database;
     final result = await db.query('${userPan}_stocks',
-        where: 'remaining = 0 and sellDate BETWEEN ? AND ?',
-        whereArgs: [start, end]); // Adjust the query as needed
+        where:
+            'brockerName = ?  and remaining = 0 and sellDate BETWEEN ? AND ? order by name',
+        whereArgs: [brokerName, start, end]); // Adjust the query as needed
     return result;
   }
 
@@ -502,15 +515,16 @@ class DatabaseService {
   //   return result;
   // }
   Future<List<Map<String, dynamic>>> fetchFinancialYearWiseDataHold(
-      String userPan, int year) async {
+      String userPan, String brokerName, int year) async {
     String start = '${year - 1}-04-01';
     String end = '$year-03-31';
     final db = await instance.database;
 
     final result = await db.rawQuery('''
     SELECT * FROM ${userPan}_stocks
-    WHERE (buyDate <= ? AND (sellDate IS NULL OR (not sellDate < ? and sellDate not between ? and ?)))
-  ''', [end, start, start, end]);
+    WHERE brockerName=? and (buyDate <= ? AND (sellDate IS NULL OR (not sellDate < ? and sellDate not between ? and ?)))
+    order BY name
+  ''', [brokerName, end, start, start, end]);
 
     return result;
   }

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:stock_tracker/pages/multiuser/multiuser_service.dart';
+import 'package:stock_tracker/database/multiuser_service.dart';
 import 'package:stock_tracker/pages/statement_dwd/pdf_service.dart';
 import 'package:stock_tracker/pages/statement_dwd/save_and_open.dart';
 
 class Download extends StatefulWidget {
   final String userPan;
-  const Download({super.key, required this.userPan});
+  final String brockerName;
+  const Download({super.key, required this.userPan, required this.brockerName});
 
   @override
   State<Download> createState() => _DownloadState();
@@ -49,8 +50,8 @@ class _DownloadState extends State<Download> {
   Future<void> _loadYearWise(int id, int year) async {
     // print(widget.userPan);
     if (id == 1) {
-      final data = await DatabaseService.instance
-          .fetchFinancialYearWiseDataPL(widget.userPan, year);
+      final data = await DatabaseService.instance.fetchFinancialYearWiseDataPL(
+          widget.userPan, widget.brockerName, year);
       setState(() {
         stocksData = data;
       });
@@ -58,7 +59,8 @@ class _DownloadState extends State<Download> {
       // final now = DateTime.now();
       // now = now.toIso8601String();
       final data = await DatabaseService.instance
-          .fetchFinancialYearWiseDataHold(widget.userPan, year);
+          .fetchFinancialYearWiseDataHold(
+              widget.userPan, widget.brockerName, year);
       setState(() {
         stocksData = data;
       });
@@ -120,6 +122,7 @@ class _DownloadState extends State<Download> {
                                 );
                                 final tablePdf = await PdfApi.generateTable(
                                     widget.userPan,
+                                    widget.brockerName,
                                     int.parse(years[index]['fy']),
                                     stocksData);
                                 SaveAndOpenDocument.openPdf(tablePdf);
@@ -138,6 +141,7 @@ class _DownloadState extends State<Download> {
                                 );
                                 final tablePdf = await PdfApi.generateHoldTable(
                                     widget.userPan,
+                                    widget.brockerName,
                                     int.parse(years[index]['fy']),
                                     stocksData);
                                 SaveAndOpenDocument.openPdf(tablePdf);
