@@ -49,6 +49,11 @@ class _LoginScreenState extends State<LoginScreen> {
     _loadUsers();
   }
 
+  Future<void> _deletepan(String userId) async {
+    await DatabaseService.instance.deletePAN(userId);
+    _loadUsers();
+  }
+
   Future<void> _deleteDB() async {
     await DatabaseService.instance.deleteDatabaseFile();
     _loadUsers();
@@ -72,7 +77,9 @@ class _LoginScreenState extends State<LoginScreen> {
         title: const Text('Select Account'),
         actions: [
           IconButton(
-              onPressed: () => _deleteDB(), icon: const Icon(Icons.delete))
+            onPressed: () => _deleteDB(),
+            icon: const Icon(Icons.delete),
+          )
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -172,7 +179,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: ExpansionTile(
                     leading: IconButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        await _deletepan(panNo);
+                      },
                       icon: const Icon(Icons.delete),
                     ),
                     title: Text(panNo),

@@ -222,9 +222,17 @@ class DatabaseService {
   Future<void> deleteUser(String userName, String userPan) async {
     final db = await instance.database;
     await db.delete('users', where: 'name=?', whereArgs: [userName]);
-    await db.rawQuery('DROP TABLE ${userPan}_stocks');
+    await db.rawDelete(
+        'DELETE FROM ${userPan}_stocks WHERE brockerName = ?', [userName]);
+    // await db.rawQuery('DROP TABLE ${userPan}_stocks');
   }
 
+// delete an existing user
+  Future<void> deletePAN(String userPan) async {
+    final db = await instance.database;
+    await db.delete('users', where: 'idno=?', whereArgs: [userPan]);
+    await db.rawQuery('DROP TABLE ${userPan}_stocks');
+  }
   // Future<List<Map<String, dynamic>>> getUsers() async {
   //   final db = await instance.database;
   //   return await db.query('users');
