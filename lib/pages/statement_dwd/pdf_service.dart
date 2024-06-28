@@ -28,20 +28,27 @@ class PdfApi {
                           item['buyPrice'] *
                           item['buyAmount'] /
                           100 ??
-                      0.0))
+                      0.0) as double)
                   .reduce((a, b) => a + b)
+                  .ceil()
+                  .toDouble()
               : 0.0;
           double totalInv = data.isNotEmpty
               ? data
                   .map((item) =>
-                      (item['buyPrice'].ceil() * item['buyAmount'].ceil()))
+                      (item['buyPrice'] * item['buyAmount']) as double)
                   .reduce((a, b) => a + b)
+                  .ceil()
+                  .toDouble()
               : 0.0;
 
           double totalPv = data.isNotEmpty
               ? data
-                  .map((item) => ((item['sellPrice'] ?? 0) * item['buyAmount']))
+                  .map((item) =>
+                      ((item['sellPrice'] ?? 0) * item['buyAmount']) as double)
                   .reduce((a, b) => a + b)
+                  .ceil()
+                  .toDouble()
               : 0.0;
           return <pw.Widget>[
             pw.Header(
@@ -93,7 +100,8 @@ class PdfApi {
                         .toString(),
                     item['sellPrice'].ceil().toString(),
                     (item['sellPrice'] * item['sellQnty']).ceil().toString(),
-                    ((item['pl'] * item['buyPrice'] * item['buyAmount'] / 100))
+                    ((((item['sellPrice'] * item['sellQnty']) -
+                            (item['buyPrice'] * item['buyAmount']))))
                         .ceil()
                         .toString(),
                   ],

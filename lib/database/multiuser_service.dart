@@ -27,8 +27,7 @@ class DatabaseService {
     CREATE TABLE users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      idno TEXT NOT NULL,
-      val INTEGER NOT NULL
+      idno TEXT NOT NULL
     )
     ''');
   }
@@ -68,26 +67,26 @@ class DatabaseService {
   }
 
 // defining the schema for the table
-  Future<void> createUserMFTable(String userName, String userId) async {
-    final db = await instance.database;
+  // Future<void> createUserMFTable(String userName, String userId) async {
+  //   final db = await instance.database;
 
-    await db.execute('''
-    CREATE TABLE IF NOT EXISTS mfs_${userId} (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      schemeName NOT NULL,
-      buyPrice REAL NOT NULL,
-      buyDate TEXT NOT NULL,
-      buyUnits REAL NOT NULL,
-      sellPrice REAL,
-      sellDate REAL,
-      sellQnty REAL,
-      remaining REAL,
-      currPrice REAL,
-      pl REAL
-    )
-    ''');
-  }
+  //   await db.execute('''
+  //   CREATE TABLE IF NOT EXISTS mfs_${userId} (
+  //     id INTEGER PRIMARY KEY AUTOINCREMENT,
+  //     name TEXT NOT NULL,
+  //     schemeName NOT NULL,
+  //     buyPrice REAL NOT NULL,
+  //     buyDate TEXT NOT NULL,
+  //     buyUnits REAL NOT NULL,
+  //     sellPrice REAL,
+  //     sellDate REAL,
+  //     sellQnty REAL,
+  //     remaining REAL,
+  //     currPrice REAL,
+  //     pl REAL
+  //   )
+  //   ''');
+  // }
 
 // a table that contains only the names of the stock that belong to a particular stock brocker
 // under a particular PAN no
@@ -191,36 +190,36 @@ class DatabaseService {
   }
 
 // add a new user account
-  Future<void> addUser(String userName, String userId, int val) async {
+  Future<void> addUser(String userName, String userId) async {
     final db = await instance.database;
 
     await db.insert(
       'users',
-      {'name': userName, 'idno': userId, 'val': val},
+      {
+        'name': userName,
+        'idno': userId,
+      },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
 
     // Create user-specific table
-    if (val == 1) {
-      await createUserTable(userName, userId);
-    } else {
-      await createUserMFTable(userName, userId);
-    }
+
+    await createUserTable(userName, userId);
   }
 
 // add a new user account for Mutual Fund
-  Future<void> addMFUser(String schemeName, String userId) async {
-    final db = await instance.database;
+  // Future<void> addMFUser(String schemeName, String userId) async {
+  //   final db = await instance.database;
 
-    await db.insert(
-      '${userId}_mfs',
-      {'name': schemeName, 'idno': userId},
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+  //   await db.insert(
+  //     '${userId}_mfs',
+  //     {'name': schemeName, 'idno': userId},
+  //     conflictAlgorithm: ConflictAlgorithm.replace,
+  //   );
 
-    // Create user-specific table
-    await createUserMFTable(schemeName, userId);
-  }
+  //   // Create user-specific table
+  //   await createUserMFTable(schemeName, userId);
+  // }
 
 // delete an existing user
   Future<void> deleteUser(String userName, String userPan) async {
@@ -248,7 +247,6 @@ class DatabaseService {
     final List<Map<String, dynamic>> result = await db.rawQuery('''
     SELECT idno, name
     FROM users
-    where val=1
     ORDER BY idno, name
   ''');
 
@@ -266,29 +264,28 @@ class DatabaseService {
     return groupedData;
   }
 
-  Future<Map<String, List<String>>> getMfUsersGroupedByPanNo() async {
-    // Query to get the data grouped by panNo
-    final db = await instance.database;
-    final List<Map<String, dynamic>> result = await db.rawQuery('''
-    SELECT idno, name
-    FROM users
-    where val=2
-    ORDER BY idno, name
-  ''');
+  // Future<Map<String, List<String>>> getMfUsersGroupedByPanNo() async {
+  //   // Query to get the data grouped by panNo
+  //   final db = await instance.database;
+  //   final List<Map<String, dynamic>> result = await db.rawQuery('''
+  //   SELECT idno, name
+  //   FROM users
+  //   ORDER BY idno, name
+  // ''');
 
-    // Transform the result into a Map
-    Map<String, List<String>> groupedData = {};
-    for (var row in result) {
-      final String panNo = row['idno'];
-      final String brokername = row['name'];
-      if (!groupedData.containsKey(panNo)) {
-        groupedData[panNo] = [];
-      }
-      groupedData[panNo]!.add(brokername);
-    }
+  // Transform the result into a Map
+  //   Map<String, List<String>> groupedData = {};
+  //   for (var row in result) {
+  //     final String panNo = row['idno'];
+  //     final String brokername = row['name'];
+  //     if (!groupedData.containsKey(panNo)) {
+  //       groupedData[panNo] = [];
+  //     }
+  //     groupedData[panNo]!.add(brokername);
+  //   }
 
-    return groupedData;
-  }
+  //   return groupedData;
+  // }
 
 // insert stocks
   Future<void> insertStock(String userId, Map<String, dynamic> stock) async {
@@ -325,38 +322,38 @@ class DatabaseService {
   }
 
 // insert MF
-  Future<void> insertMF(String userId, Map<String, dynamic> stock) async {
-    final db = await instance.database;
-    // Check for existing stocks with the same name
-    final List<Map<String, dynamic>> existingStocks = await db.query(
-      '${userId}_stocks',
-      where: 'name = ?',
-      whereArgs: [
-        stock['name'],
-      ],
-    );
-    if (existingStocks.isNotEmpty) {
-      // Check if any of the existing stocks have a non-empty currentPrice
-      for (var existingStock in existingStocks) {
-        if (existingStock['currPrice'] != null &&
-            existingStock['currPrice'] != '') {
-          // Duplicate the currentPrice
-          stock['currPrice'] = existingStock['currPrice'];
-          stock['pl'] = ((existingStock['currPrice'] * stock['buyAmount'] -
-                      stock['buyPrice'] * stock['buyAmount']) /
-                  (stock['buyPrice'] * stock['buyAmount'])) *
-              100;
-          break;
-        }
-      }
-    }
-    await db.insert(
-      '${userId}_stocks',
-      stock,
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-    await addFY(stock['buyDate']);
-  }
+  // Future<void> insertMF(String userId, Map<String, dynamic> stock) async {
+  //   final db = await instance.database;
+  //   // Check for existing stocks with the same name
+  //   final List<Map<String, dynamic>> existingStocks = await db.query(
+  //     '${userId}_stocks',
+  //     where: 'name = ?',
+  //     whereArgs: [
+  //       stock['name'],
+  //     ],
+  //   );
+  //   if (existingStocks.isNotEmpty) {
+  //     // Check if any of the existing stocks have a non-empty currentPrice
+  //     for (var existingStock in existingStocks) {
+  //       if (existingStock['currPrice'] != null &&
+  //           existingStock['currPrice'] != '') {
+  //         // Duplicate the currentPrice
+  //         stock['currPrice'] = existingStock['currPrice'];
+  //         stock['pl'] = ((existingStock['currPrice'] * stock['buyAmount'] -
+  //                     stock['buyPrice'] * stock['buyAmount']) /
+  //                 (stock['buyPrice'] * stock['buyAmount'])) *
+  //             100;
+  //         break;
+  //       }
+  //     }
+  //   }
+  //   await db.insert(
+  //     '${userId}_stocks',
+  //     stock,
+  //     conflictAlgorithm: ConflictAlgorithm.replace,
+  //   );
+  //   await addFY(stock['buyDate']);
+  // }
 
 // get all stocks of a particular stock
   Future<List<Map<String, dynamic>>> getAllStocks(String userName) async {
