@@ -18,6 +18,7 @@ class PdfApi {
     final pdf = pw.Document();
     pdf.addPage(
       pw.MultiPage(
+        // orientation: pw.PageOrientation.landscape,
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
         build: (pw.Context context) {
@@ -27,20 +28,19 @@ class PdfApi {
                           item['buyPrice'] *
                           item['buyAmount'] /
                           100 ??
-                      0.0) as double)
+                      0.0))
                   .reduce((a, b) => a + b)
               : 0.0;
           double totalInv = data.isNotEmpty
               ? data
                   .map((item) =>
-                      (item['buyPrice'] * item['buyAmount']) as double)
+                      (item['buyPrice'].ceil() * item['buyAmount'].ceil()))
                   .reduce((a, b) => a + b)
               : 0.0;
 
           double totalPv = data.isNotEmpty
               ? data
-                  .map((item) =>
-                      ((item['sellPrice'] ?? 0) * item['buyAmount']) as double)
+                  .map((item) => ((item['sellPrice'] ?? 0) * item['buyAmount']))
                   .reduce((a, b) => a + b)
               : 0.0;
           return <pw.Widget>[
@@ -72,27 +72,27 @@ class PdfApi {
                   'Name',
                   'Buy Date',
                   'Buy Price',
-                  'Buy Quantity',
-                  'Invested Amount',
+                  'Buy Qty',
+                  'Inv Amnt',
                   'Sell Date',
                   'Sell Price',
-                  'Sell Amount',
-                  'P/L'
+                  'Sell Amnt',
+                  'Profit / Loss'
                 ],
                 ...data.map(
                   (item) => [
                     item['name'].toString(),
-                    (DateFormat('dd-MM-yyyy')
+                    (DateFormat('dd-MM-yy')
                             .format(DateTime.parse(item['buyDate'])))
                         .toString(),
                     item['buyPrice'].toString(),
                     item['buyAmount'].ceil().toString(),
                     (item['buyPrice'] * item['buyAmount']).ceil().toString(),
-                    (DateFormat('dd-MM-yyyy')
+                    (DateFormat('dd-MM-yy')
                             .format(DateTime.parse(item['sellDate'])))
                         .toString(),
                     item['sellPrice'].ceil().toString(),
-                    (item['sellPrice'] * item['sellQnty']).toString(),
+                    (item['sellPrice'] * item['sellQnty']).ceil().toString(),
                     ((item['pl'] * item['buyPrice'] * item['buyAmount'] / 100))
                         .ceil()
                         .toString(),
@@ -125,6 +125,7 @@ class PdfApi {
     // int days=0;
     pdf.addPage(
       pw.MultiPage(
+        // orientation: pw.PageOrientation.landscape,
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
         build: (pw.Context context) {
@@ -198,17 +199,17 @@ class PdfApi {
                   'Name',
                   'Buy Date',
                   'Buy Price',
-                  'Buy Quantity',
-                  'Invested Amount',
+                  'Buy Qty',
+                  'Inv Amnt',
                   'Current Price',
                   'Present Value',
-                  'P/L',
+                  'Profit / Loss',
                   'Holding days',
                 ],
                 ...data.map(
                   (item) => [
                     item['name'].toString(),
-                    (DateFormat('dd-MM-yyyy')
+                    (DateFormat('dd-MM-yy')
                             .format(DateTime.parse(item['buyDate'])))
                         .toString(),
                     item['buyPrice'].ceil().toString(),
@@ -235,10 +236,10 @@ class PdfApi {
                   '',
                   '',
                   '',
-                  totalInv.toString(),
+                  totalInv.ceil().toString(),
                   '',
-                  totalPv.toString(),
-                  totalPl.toString(),
+                  totalPv.ceil().toString(),
+                  totalPl.ceil().toString(),
                 ],
               ],
             ),
