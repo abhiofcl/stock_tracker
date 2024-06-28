@@ -72,13 +72,13 @@ class DatabaseService {
     final db = await instance.database;
 
     await db.execute('''
-    CREATE TABLE IF NOT EXISTS ${userId}_mfs (
+    CREATE TABLE IF NOT EXISTS mfs_${userId} (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      brockerName NOT NULL,
+      schemeName NOT NULL,
       buyPrice REAL NOT NULL,
       buyDate TEXT NOT NULL,
-      buyAmount REAL NOT NULL,
+      buyUnits REAL NOT NULL,
       sellPrice REAL,
       sellDate REAL,
       sellQnty REAL,
@@ -201,7 +201,11 @@ class DatabaseService {
     );
 
     // Create user-specific table
-    await createUserTable(userName, userId);
+    if (val == 1) {
+      await createUserTable(userName, userId);
+    } else {
+      await createUserMFTable(userName, userId);
+    }
   }
 
 // add a new user account for Mutual Fund
@@ -215,7 +219,7 @@ class DatabaseService {
     );
 
     // Create user-specific table
-    await createUserTable(schemeName, userId);
+    await createUserMFTable(schemeName, userId);
   }
 
 // delete an existing user
@@ -288,6 +292,40 @@ class DatabaseService {
 
 // insert stocks
   Future<void> insertStock(String userId, Map<String, dynamic> stock) async {
+    final db = await instance.database;
+    // Check for existing stocks with the same name
+    final List<Map<String, dynamic>> existingStocks = await db.query(
+      '${userId}_stocks',
+      where: 'name = ?',
+      whereArgs: [
+        stock['name'],
+      ],
+    );
+    if (existingStocks.isNotEmpty) {
+      // Check if any of the existing stocks have a non-empty currentPrice
+      for (var existingStock in existingStocks) {
+        if (existingStock['currPrice'] != null &&
+            existingStock['currPrice'] != '') {
+          // Duplicate the currentPrice
+          stock['currPrice'] = existingStock['currPrice'];
+          stock['pl'] = ((existingStock['currPrice'] * stock['buyAmount'] -
+                      stock['buyPrice'] * stock['buyAmount']) /
+                  (stock['buyPrice'] * stock['buyAmount'])) *
+              100;
+          break;
+        }
+      }
+    }
+    await db.insert(
+      '${userId}_stocks',
+      stock,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    await addFY(stock['buyDate']);
+  }
+
+// insert MF
+  Future<void> insertMF(String userId, Map<String, dynamic> stock) async {
     final db = await instance.database;
     // Check for existing stocks with the same name
     final List<Map<String, dynamic>> existingStocks = await db.query(
@@ -403,6 +441,25 @@ class DatabaseService {
         "UPDATE ${userPan}_stocks set pl = ((sellPrice*buyAmount - buyPrice*buyAmount)/(buyPrice*buyAmount))*100 where id=?",
         [stockId]);
     await addFY(date);
+  }
+
+// sell a batch of stock and update the fields sell date and price
+  Future<void> updateStock(String userName, String userPan, int stockId,
+      double amount, double quantity) async {
+    final db = await instance.database;
+
+    await db.rawUpdate('''
+  UPDATE ${userPan}_stocks 
+  SET 
+    remaining = ?, 
+    buyAmount=?,
+    buyPrice=?
+  WHERE id = ?
+  ''', [quantity, quantity, amount, stockId]);
+    await db.rawQuery(
+        "UPDATE ${userPan}_stocks set pl = ((currPrice*buyAmount - buyPrice*buyAmount)/(buyPrice*buyAmount))*100 where id=?",
+        [stockId]);
+    // await addFY(date);
   }
 
 // delete an already made stock in case of wrongly inputting

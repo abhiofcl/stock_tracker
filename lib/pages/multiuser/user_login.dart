@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:stock_tracker/pages/multiuser/display.dart';
 import 'package:stock_tracker/database/multiuser_service.dart';
+import 'package:stock_tracker/pages/mutual/mutual_saved.dart';
 import 'package:stock_tracker/pages/stock_mgmt/dwd.dart';
 import 'package:stock_tracker/saved.dart';
 
@@ -34,11 +35,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _addUser(String userName, String userId, int val) async {
-    if (val == 1) {
-      await DatabaseService.instance.addUser(userName, userId, val);
-    } else {
-      await DatabaseService.instance.addUser(userName, userId, val);
-    }
+    await DatabaseService.instance.addUser(userName, userId, val);
+
     _userNameController.clear();
     _idNoController.clear();
     _loadUsers();
@@ -203,7 +201,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   );
                                 },
-                                icon: const Icon(Icons.document_scanner),
+                                icon: const Icon(Icons.edit_document),
                               ),
                               tileColor: Colors.blue[300],
                               title: Text(schemeName),
@@ -247,7 +245,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (context) => Saved(
+                                    builder: (context) => MutualSaved(
                                       userName: schemeName,
                                       userPan: panNo,
                                     ),

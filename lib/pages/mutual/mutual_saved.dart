@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:stock_tracker/pages/multiuser/display.dart';
 import 'package:stock_tracker/database/multiuser_service.dart';
+import 'package:stock_tracker/pages/mutual/mutual_display.dart';
 import 'package:stock_tracker/pages/stock_mgmt/stock_mgmt.dart';
 
-class Saved extends StatefulWidget {
+class MutualSaved extends StatefulWidget {
   final String userName;
   final String userPan;
-  const Saved({super.key, required this.userName, required this.userPan});
+  const MutualSaved({super.key, required this.userName, required this.userPan});
 
   @override
-  State<Saved> createState() => _SavedState();
+  State<MutualSaved> createState() => _MutualSavedState();
 }
 
-class _SavedState extends State<Saved> {
+class _MutualSavedState extends State<MutualSaved> {
   TextEditingController _stockNameController = TextEditingController();
   List<Map<String, dynamic>> stocks = [];
   List<Map<String, dynamic>> _foundStocks = [];
@@ -67,7 +68,7 @@ class _SavedState extends State<Saved> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Saved Stocks"),
+        title: const Text("Saved Mutual Fund"),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
@@ -136,7 +137,7 @@ class _SavedState extends State<Saved> {
                   ),
                   TextField(
                     onChanged: (value) => _runFilter(value),
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                         labelText: "Search", suffixIcon: Icon(Icons.search)),
                   ),
                   const SizedBox(
@@ -173,7 +174,7 @@ class _SavedState extends State<Saved> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) {
-                                  return AccountScreen(
+                                  return MutualAddScreen(
                                     userName: widget.userName,
                                     stockName: stocks[index]['stockName'],
                                     userPan: widget.userPan,

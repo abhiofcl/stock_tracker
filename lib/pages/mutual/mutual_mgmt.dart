@@ -3,22 +3,22 @@ import 'package:intl/intl.dart';
 import 'package:stock_tracker/database/multiuser_service.dart';
 import 'package:stock_tracker/pages/stock_mgmt/Statements.dart';
 
-class SavedStockScreen extends StatefulWidget {
+class SavedMutualScreen extends StatefulWidget {
   final String userName;
   final String stockName;
   final String userPan;
 
-  const SavedStockScreen(
+  const SavedMutualScreen(
       {super.key,
       required this.userName,
       required this.stockName,
       required this.userPan});
 
   @override
-  State<SavedStockScreen> createState() => _SavedStockScreenState();
+  State<SavedMutualScreen> createState() => _SavedMutualScreenState();
 }
 
-class _SavedStockScreenState extends State<SavedStockScreen> {
+class _SavedMutualScreenState extends State<SavedMutualScreen> {
   // DateTime? _selectedDate;
   // final TextEditingController _dateController = TextEditingController();
   List<Map<String, dynamic>> stocks = [];
@@ -159,79 +159,79 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
       ),
       body: Column(
         children: [
-          Row(
-            children: [
-              Card(
-                margin: const EdgeInsets.all(16.0),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Stock Overview',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8.0),
-                      Text('Buy AVG: $buyAvg'),
-                      const SizedBox(height: 8.0),
-                      Text('Total Invested : $totalInvested'),
-                      const SizedBox(height: 8.0),
-                      Text("Current Price:$currPrice"),
-                      const SizedBox(height: 8.0),
-                      const Text('Total returns:'),
+          // Row(
+          //   children: [
+          //     Card(
+          //       margin: const EdgeInsets.all(16.0),
+          //       child: Padding(
+          //         padding: const EdgeInsets.all(16.0),
+          //         child: Column(
+          //           crossAxisAlignment: CrossAxisAlignment.start,
+          //           children: [
+          //             const Text(
+          //               'Stock Overview',
+          //               style: TextStyle(
+          //                   fontSize: 20, fontWeight: FontWeight.bold),
+          //             ),
+          //             const SizedBox(height: 8.0),
+          //             Text('Buy AVG: $buyAvg'),
+          //             const SizedBox(height: 8.0),
+          //             Text('Total Invested : $totalInvested'),
+          //             const SizedBox(height: 8.0),
+          //             Text("Current Price:$currPrice"),
+          //             const SizedBox(height: 8.0),
+          //             const Text('Total returns:'),
 
-                      // Add more overview details as needed
-                    ],
-                  ),
-                ),
-              ),
-              Card(
-                margin: const EdgeInsets.all(16.0),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          const Text("Profit"),
-                          Container(
-                            margin: const EdgeInsets.only(left: 10),
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(color: Colors.green[300]),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          const Text("Loss"),
-                          Container(
-                            margin: const EdgeInsets.only(left: 10),
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(color: Colors.red[300]),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          const Text("Sold"),
-                          Container(
-                            margin: const EdgeInsets.only(left: 10),
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(color: Colors.teal[100]),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+          //             // Add more overview details as needed
+          //           ],
+          //         ),
+          //       ),
+          //     ),
+          //     Card(
+          //       margin: const EdgeInsets.all(16.0),
+          //       child: Padding(
+          //         padding: const EdgeInsets.all(8.0),
+          //         child: Column(
+          //           children: [
+          //             Row(
+          //               children: [
+          //                 const Text("Profit"),
+          //                 Container(
+          //                   margin: const EdgeInsets.only(left: 10),
+          //                   width: 10,
+          //                   height: 10,
+          //                   decoration: BoxDecoration(color: Colors.green[300]),
+          //                 ),
+          //               ],
+          //             ),
+          //             Row(
+          //               children: [
+          //                 const Text("Loss"),
+          //                 Container(
+          //                   margin: const EdgeInsets.only(left: 10),
+          //                   width: 10,
+          //                   height: 10,
+          //                   decoration: BoxDecoration(color: Colors.red[300]),
+          //                 ),
+          //               ],
+          //             ),
+          //             Row(
+          //               children: [
+          //                 const Text("Sold"),
+          //                 Container(
+          //                   margin: const EdgeInsets.only(left: 10),
+          //                   width: 10,
+          //                   height: 10,
+          //                   decoration: BoxDecoration(color: Colors.teal[100]),
+          //                 ),
+          //               ],
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     ),
+          //   ],
+          // ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
@@ -249,9 +249,9 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
                         (states) => Color.fromARGB(255, 144, 150, 202)),
                     columns: const [
                       DataColumn(label: Text('Buy Date')),
-                      DataColumn(label: Text('Buy Quantity')),
-                      DataColumn(label: Text('Buy Price')),
-                      DataColumn(label: Text('Invested Amount')),
+                      DataColumn(label: Text('Buy Units')),
+                      DataColumn(label: Text('Buy Price/Unit')),
+                      DataColumn(label: Text(' Amount')),
                       DataColumn(label: Text('Present Value')),
                       DataColumn(label: Text('P/L')),
                       DataColumn(label: Text('% P/L')),
