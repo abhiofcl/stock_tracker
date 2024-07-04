@@ -1,6 +1,8 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 // import 'package:stock_tracker/model/stock.dart';
+import 'package:sqflite_common/sqlite_api.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class DatabaseService {
   static final DatabaseService instance = DatabaseService._init();

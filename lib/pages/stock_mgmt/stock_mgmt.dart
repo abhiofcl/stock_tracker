@@ -109,6 +109,7 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
+      initialEntryMode: DatePickerEntryMode.input,
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
@@ -154,6 +155,8 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.deepPurple,
+        foregroundColor: Colors.blue,
         child: const Icon(Icons.monetization_on_outlined),
         onPressed: () => _showCurrPriceDialog(context),
       ),
@@ -248,6 +251,7 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
                     headingRowColor: MaterialStateColor.resolveWith(
                         (states) => Color.fromARGB(255, 144, 150, 202)),
                     columns: const [
+                      DataColumn(label: Text('Sl No.')),
                       DataColumn(label: Text('Buy Date')),
                       DataColumn(label: Text('Buy Quantity')),
                       DataColumn(label: Text('Buy Price')),
@@ -261,7 +265,7 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
                       stocks.length,
                       (index) {
                         final stock = stocks[index];
-                        final String formattedDate = DateFormat('yyyy-MM-dd')
+                        final String formattedDate = DateFormat('dd-MM-yyyy')
                             .format(DateTime.parse(stock['buyDate']));
                         final String formattedSellDate =
                             stock['sellDate'] != null
@@ -280,13 +284,14 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
 
                         return DataRow(
                           cells: [
+                            DataCell(Text('${index + 1}')),
                             DataCell(Text(formattedDate)),
                             DataCell(Text('${stock['buyAmount']}')),
                             DataCell(Text('${stock['buyPrice']}')),
                             DataCell(
                               Text(
                                 (stock['buyAmount'] * stock['buyPrice'])
-                                    .toString(),
+                                    .toStringAsFixed(2),
                               ),
                             ),
                             DataCell(Text(
@@ -493,11 +498,19 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.blue[100],
           title: const Text('Set Current Price'),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             TextFormField(
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
               controller: _currPriceController,
               decoration: const InputDecoration(
+                labelStyle: TextStyle(
+                  color: Colors.black,
+                ),
                 labelText: 'Set Current Price',
               ),
               keyboardType:

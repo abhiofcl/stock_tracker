@@ -133,7 +133,7 @@ class PdfApi {
     // int days=0;
     pdf.addPage(
       pw.MultiPage(
-        // orientation: pw.PageOrientation.landscape,
+        orientation: pw.PageOrientation.landscape,
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
         build: (pw.Context context) {

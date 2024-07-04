@@ -18,7 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   // int flag = 1;
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _idNoController = TextEditingController();
-
+  final ScrollController controller = ScrollController();
   @override
   void initState() {
     super.initState();
@@ -61,6 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _userNameController.dispose();
     _idNoController.dispose();
+    controller.dispose();
     super.dispose();
   }
 
@@ -88,6 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
             context: context,
             builder: (BuildContext context) {
               return Dialog(
+                backgroundColor: Colors.blue[100],
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: SizedBox(
@@ -115,24 +117,36 @@ class _LoginScreenState extends State<LoginScreen> {
                         //   ],
                         // ),
                         TextFormField(
+                          style: TextStyle(
+                            fontSize: 22,
+                          ),
                           controller: _userNameController,
                           onChanged: (value) {
                             setState(() {
                               _userNameController.text = value;
                             });
                           },
-                          decoration:
-                              const InputDecoration(label: Text("Client id")),
+                          decoration: const InputDecoration(
+                              labelStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              label: Text("Client id")),
                         ),
                         TextFormField(
                           controller: _idNoController,
+                          style: TextStyle(
+                            fontSize: 22,
+                          ),
                           onChanged: (value) {
                             setState(() {
                               _idNoController.text = value;
                             });
                           },
-                          decoration:
-                              const InputDecoration(label: Text("PAN no")),
+                          decoration: const InputDecoration(
+                              labelStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              label: Text("PAN no")),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -144,7 +158,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: const Text("Cancel"),
+                                child: const Text(
+                                  "Cancel",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                               ElevatedButton(
                                 onPressed: () {
@@ -153,7 +172,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Navigator.of(context)
                                       .pop(); // Close the dialog
                                 },
-                                child: const Text("Add"),
+                                child: const Text(
+                                  "Add",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -168,94 +192,116 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              itemCount: panNos.length,
-              itemBuilder: (context, index) {
-                final panNo = panNos[index];
-                final brokers = users[panNo] ?? [];
-                // final schemes = mFUSers[panNo] ?? [];
+            child: RawScrollbar(
+              controller: controller,
+              thickness: 10,
+              thumbColor: Colors.white,
+              child: ListView.builder(
+                controller: controller,
+                itemCount: panNos.length,
+                itemBuilder: (context, index) {
+                  final panNo = panNos[index];
+                  final brokers = users[panNo] ?? [];
+                  // final schemes = mFUSers[panNo] ?? [];
 
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ExpansionTile(
-                    leading: IconButton(
-                      onPressed: () async {
-                        await _deletepan(panNo);
-                      },
-                      icon: const Icon(Icons.delete),
-                    ),
-                    title: Text(panNo),
-                    children: brokers.map((brokername) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ListTile(
-                          leading: IconButton(
-                            onPressed: () {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ExpansionTile(
+                      collapsedBackgroundColor: Colors.blue,
+                      // backgroundColor: Colors.blue,
+                      leading: IconButton(
+                        onPressed: () async {
+                          await _deletepan(panNo);
+                        },
+                        icon: const Icon(Icons.delete),
+                      ),
+                      title: Text(
+                        panNo,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      children: brokers.map((brokername) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListTile(
+                            leading: IconButton(
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => Download(
+                                      userPan: panNo,
+                                      brockerName: brokername,
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.edit_document),
+                            ),
+                            tileColor: Colors.amber[300],
+                            title: Text(
+                              brokername,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            onLongPress: () => showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return Dialog(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Text("Delete this user??"),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: const Text("Cancel"),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  _deleteUser(
+                                                      brokername, panNo);
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: const Text("Delete"),
+                                              )
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }),
+                            onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (context) => Download(
+                                  builder: (context) => Saved(
+                                    userName: brokername,
                                     userPan: panNo,
-                                    brockerName: brokername,
                                   ),
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.edit_document),
                           ),
-                          tileColor: Colors.blue[300],
-                          title: Text(brokername),
-                          onLongPress: () => showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return Dialog(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Text("Delete this user??"),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                              child: const Text("Cancel"),
-                                            ),
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                _deleteUser(brokername, panNo);
-                                                Navigator.of(context).pop();
-                                              },
-                                              child: const Text("Delete"),
-                                            )
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }),
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => Saved(
-                                  userName: brokername,
-                                  userPan: panNo,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                );
-              },
+                        );
+                      }).toList(),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ],

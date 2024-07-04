@@ -121,12 +121,21 @@ class _SoldStockScreenState extends State<SoldStockScreen> {
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
+              showBottomBorder: true,
+              border: TableBorder.all(
+                borderRadius: BorderRadius.circular(8),
+                width: 1,
+              ),
+              headingRowColor: MaterialStateColor.resolveWith(
+                  (states) => Color.fromARGB(255, 144, 150, 202)),
               columns: const [
-                DataColumn(label: Text('Buy Quantity')),
                 DataColumn(label: Text('Buy Date')),
+                DataColumn(label: Text('Buy Quantity')),
                 DataColumn(label: Text('Buy Price')),
+                DataColumn(label: Text('Invested Amount')),
                 DataColumn(label: Text('Sell Date')),
                 DataColumn(label: Text('Sell Price')),
+                DataColumn(label: Text('Sell Amount')),
                 DataColumn(label: Text('P/L')),
                 DataColumn(label: Text('% P/L')),
                 // DataColumn(label: Text('Actions')),
@@ -135,10 +144,10 @@ class _SoldStockScreenState extends State<SoldStockScreen> {
                 stocks.length,
                 (index) {
                   final stock = stocks[index];
-                  final String formattedDate = DateFormat('yyyy-MM-dd')
+                  final String formattedDate = DateFormat('dd-MM-yyyy')
                       .format(DateTime.parse(stock['buyDate']));
                   final String formattedSellDate = stock['sellDate'] != null
-                      ? DateFormat('yyyy-MM-dd')
+                      ? DateFormat('dd-MM-yyyy')
                           .format(DateTime.parse(stock['sellDate']))
                       : 'N/A';
                   double value = stock['pl'] ?? 0;
@@ -150,56 +159,26 @@ class _SoldStockScreenState extends State<SoldStockScreen> {
                       0;
                   final formattedPl = pl.toStringAsFixed(2);
                   double rem = stock['remaining'];
-
+                  double sellAmount =
+                      stock['sellPrice'] * stock['sellQnty'] ?? 0;
                   return DataRow(
                     cells: [
-                      DataCell(Text('${stock['buyAmount']}')),
                       DataCell(Text(formattedDate)),
+                      DataCell(Text('${stock['buyAmount']}')),
                       DataCell(Text('${stock['buyPrice']}')),
+                      DataCell(
+                        Text(
+                          (stock['buyAmount'] * stock['buyPrice']).toString(),
+                        ),
+                      ),
                       DataCell(Text(formattedSellDate)),
                       DataCell(Text(stock['sellPrice']?.toString() ?? 'N/A')),
-                      DataCell(Text('$formattedPl')),
-                      DataCell(Text('$formattedValue')),
-                      // DataCell(
-                      //   PopupMenuButton<String>(
-                      //     onSelected: (String result) {
-                      //       switch (result) {
-                      //         case 'Modify':
-                      //           _showModifyDialog(context);
-                      //           break;
-                      //         case 'Sell':
-                      //           _showSellDialog(context, index);
-                      //           break;
-                      //         case 'Delete':
-                      //           _deleteStock(stock['id']);
-                      //           break;
-                      //       }
-                      //     },
-                      //     itemBuilder: (BuildContext context) =>
-                      //         <PopupMenuEntry<String>>[
-                      //       const PopupMenuItem<String>(
-                      //         value: 'Modify',
-                      //         child: Text('Modify'),
-                      //       ),
-                      //       const PopupMenuItem<String>(
-                      //         value: 'Sell',
-                      //         child: Text('Sell'),
-                      //       ),
-                      //       const PopupMenuItem<String>(
-                      //         value: 'Delete',
-                      //         child: Text('Delete'),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
+                      DataCell(Text(sellAmount.toString())),
+                      DataCell(Text(formattedPl)),
+                      DataCell(Text(formattedValue)),
                     ],
-                    color: MaterialStateColor.resolveWith(
-                      (states) => rem > 0
-                          ? value >= 0
-                              ? Colors.green[300]!
-                              : Colors.red[300]!
-                          : Colors.teal[100]!,
-                    ),
+                    color: MaterialStateColor.resolveWith((states) =>
+                        pl >= 0 ? Colors.green[300]! : Colors.red[300]!),
                   );
                 },
               ),

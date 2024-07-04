@@ -58,7 +58,7 @@ class _AccountScreenState extends State<AccountScreen> {
       // _nameController.clear();
       _buyPriceController.clear();
       _buyAmountController.clear();
-      _selectedDate = null;
+      // _selectedDate = null;
       // _loadStocks();
     }
   }
@@ -66,6 +66,7 @@ class _AccountScreenState extends State<AccountScreen> {
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
+      initialEntryMode: DatePickerEntryMode.input,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
@@ -95,7 +96,14 @@ class _AccountScreenState extends State<AccountScreen> {
             // ),
             TextFormField(
               controller: _buyAmountController,
+              style: const TextStyle(
+                fontSize: 22,
+                color: Colors.white,
+              ),
               decoration: const InputDecoration(
+                labelStyle: TextStyle(
+                  color: Colors.white,
+                ),
                 labelText: 'Buy Quantity',
               ),
               keyboardType:
@@ -103,7 +111,14 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
             TextFormField(
               controller: _buyPriceController,
+              style: const TextStyle(
+                fontSize: 22,
+                color: Colors.white,
+              ),
               decoration: const InputDecoration(
+                labelStyle: TextStyle(
+                  color: Colors.white,
+                ),
                 labelText: 'Buy Price',
               ),
               keyboardType:
@@ -111,6 +126,9 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
             const SizedBox(height: 10),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black, // Dark violet color
+              ),
               onPressed: () => _selectDate(context),
               child: Text(_selectedDate == null
                   ? 'Select Date'
@@ -118,11 +136,17 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black, // Dark violet color
+              ),
               onPressed: _addStock,
               child: const Text('Add Stock'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black, // Dark violet color
+              ),
               onPressed: () {
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (BuildContext context) {
@@ -137,6 +161,9 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black, // Dark violet color
+              ),
               onPressed: () {
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (BuildContext context) {

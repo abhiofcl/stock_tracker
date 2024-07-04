@@ -108,6 +108,9 @@ class _DownloadState extends State<Download> {
                             const Color.fromARGB(96, 198, 173, 51),
                         title: Text(
                           '${int.parse(years[index]['fy']) - 1} - ${years[index]['fy']}',
+                          style: TextStyle(
+                            color: Colors.yellow,
+                          ),
                         ),
                         children: [
                           Padding(
