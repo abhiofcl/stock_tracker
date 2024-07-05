@@ -144,13 +144,13 @@ class _SavedState extends State<Saved> {
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      // color: Colors.white,
                     ),
                     onChanged: (value) => _runFilter(value),
                     decoration: const InputDecoration(
                       labelStyle: TextStyle(
                         fontSize: 20,
-                        color: Colors.white,
+                        // color: Colors.white,
                       ),
                       labelText: "Search",
                       suffixIcon: Icon(

@@ -46,9 +46,9 @@ class MainApp extends StatelessWidget {
               fontSize: 14.0, fontWeight: FontWeight.normal, color: teal),
           // Add other text styles as needed
         ),
-        appBarTheme: const AppBarTheme(
-          color: deepPurple,
-        ),
+        // appBarTheme: const AppBarTheme(
+        //   color: deepPurple,
+        // ),
         buttonTheme: const ButtonThemeData(
           buttonColor: crimsonRed,
         ),
@@ -58,9 +58,11 @@ class MainApp extends StatelessWidget {
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             foregroundColor: Colors.white,
-            backgroundColor: Color(0xFF008080), // White text
-            textStyle: TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold),
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            backgroundColor: const Color(0xFF008080), // White text
+            textStyle:
+                const TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
@@ -139,7 +141,7 @@ class MyWidget extends StatelessWidget {
               height: 10,
             ),
             ElevatedButton(
-                style: Theme.of(context).elevatedButtonTheme,
+                // style: Theme.of(context).elevatedButtonTheme,
                 onPressed: () => _checkLogin(context),
                 child: const Text("Login")),
           ],

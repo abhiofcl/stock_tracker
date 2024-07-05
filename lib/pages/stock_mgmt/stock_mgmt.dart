@@ -155,8 +155,8 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.blue,
+        // backgroundColor: Colors.deepPurple,
+        // foregroundColor: Colors.blue,
         child: const Icon(Icons.monetization_on_outlined),
         onPressed: () => _showCurrPriceDialog(context),
       ),
@@ -218,17 +218,6 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
                           ),
                         ],
                       ),
-                      Row(
-                        children: [
-                          const Text("Sold"),
-                          Container(
-                            margin: const EdgeInsets.only(left: 10),
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(color: Colors.teal[100]),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
@@ -284,22 +273,45 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
 
                         return DataRow(
                           cells: [
-                            DataCell(Text('${index + 1}')),
-                            DataCell(Text(formattedDate)),
-                            DataCell(Text('${stock['buyAmount']}')),
-                            DataCell(Text('${stock['buyPrice']}')),
+                            DataCell(Text(
+                              '${index + 1}',
+                              style: TextStyle(color: Colors.black),
+                            )),
+                            DataCell(Text(
+                              formattedDate,
+                              style: TextStyle(color: Colors.black),
+                            )),
+                            DataCell(Text(
+                              '${stock['buyAmount']}',
+                              style: TextStyle(color: Colors.black),
+                            )),
+                            DataCell(Text(
+                              '${stock['buyPrice']}',
+                              style: TextStyle(color: Colors.black),
+                            )),
                             DataCell(
                               Text(
                                 (stock['buyAmount'] * stock['buyPrice'])
                                     .toStringAsFixed(2),
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
+                            DataCell(
+                              Text(
+                                ((stock['currPrice'] ?? 0) * stock['buyAmount'])
+                                        ?.toString() ??
+                                    'N/A',
+                                style: TextStyle(color: Colors.black),
                               ),
                             ),
                             DataCell(Text(
-                                ((stock['currPrice'] ?? 0) * stock['buyAmount'])
-                                        ?.toString() ??
-                                    'N/A')),
-                            DataCell(Text(formattedPl)),
-                            DataCell(Text(formattedValue)),
+                              formattedPl,
+                              style: TextStyle(color: Colors.black),
+                            )),
+                            DataCell(Text(
+                              formattedValue,
+                              style: TextStyle(color: Colors.black),
+                            )),
                             DataCell(
                               PopupMenuButton<String>(
                                 onSelected: (String result) {

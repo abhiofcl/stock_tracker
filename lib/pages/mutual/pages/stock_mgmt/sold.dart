@@ -164,21 +164,48 @@ class _SoldStockScreenState extends State<SoldStockScreen> {
                       stock['sellUnitPrice'] * stock['sellQnty'] ?? 0;
                   return DataRow(
                     cells: [
-                      DataCell(Text(formattedDate)),
-                      DataCell(Text('${stock['buyQnty'].toStringAsFixed(2)}')),
-                      DataCell(Text('${stock['buyUnitPrice']}')),
+                      DataCell(Text(
+                        formattedDate,
+                        style: TextStyle(fontSize: 17, color: Colors.black),
+                      )),
+                      DataCell(Text(
+                        '${stock['buyQnty'].toStringAsFixed(2)}',
+                        style: TextStyle(fontSize: 17, color: Colors.black),
+                      )),
+                      DataCell(Text(
+                        '${stock['buyUnitPrice']}',
+                        style: TextStyle(fontSize: 17, color: Colors.black),
+                      )),
                       DataCell(
                         Text(
                           ('${stock['buyAmount']}'),
+                          style: TextStyle(fontSize: 17, color: Colors.black),
                         ),
                       ),
-                      DataCell(Text(formattedSellDate)),
-                      DataCell(Text('${stock['sellQnty'].toStringAsFixed(2)}')),
-                      DataCell(
-                          Text(stock['sellUnitPrice']?.toString() ?? 'N/A')),
-                      DataCell(Text(sellAmount.ceil().toString())),
-                      DataCell(Text(formattedPl)),
-                      DataCell(Text(formattedValue)),
+                      DataCell(Text(
+                        formattedSellDate,
+                        style: TextStyle(fontSize: 17, color: Colors.black),
+                      )),
+                      DataCell(Text(
+                        '${stock['sellQnty'].toStringAsFixed(2)}',
+                        style: TextStyle(fontSize: 17, color: Colors.black),
+                      )),
+                      DataCell(Text(
+                        stock['sellUnitPrice']?.toString() ?? 'N/A',
+                        style: TextStyle(fontSize: 17, color: Colors.black),
+                      )),
+                      DataCell(Text(
+                        sellAmount.ceil().toString(),
+                        style: TextStyle(fontSize: 17, color: Colors.black),
+                      )),
+                      DataCell(Text(
+                        formattedPl,
+                        style: TextStyle(fontSize: 17, color: Colors.black),
+                      )),
+                      DataCell(Text(
+                        formattedValue,
+                        style: TextStyle(fontSize: 17, color: Colors.black),
+                      )),
                     ],
                     color: MaterialStateColor.resolveWith((states) =>
                         pl >= 0 ? Colors.green[300]! : Colors.red[300]!),

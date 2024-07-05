@@ -143,6 +143,8 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
     _buyQuantityController.dispose();
     _currPriceController.dispose();
     _sellAmountController.dispose();
+    _endController.dispose();
+    _startController.dispose();
     super.dispose();
   }
 
@@ -193,8 +195,6 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
                       Text('Total Invested : $totalInvested'),
                       const SizedBox(height: 8.0),
                       Text("Current Price:$currPrice"),
-                      const SizedBox(height: 8.0),
-                      const Text('Total returns:'),
 
                       // Add more overview details as needed
                     ],
@@ -226,17 +226,6 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
                             width: 10,
                             height: 10,
                             decoration: BoxDecoration(color: Colors.red[300]),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          const Text("Sold"),
-                          Container(
-                            margin: const EdgeInsets.only(left: 10),
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(color: Colors.teal[100]),
                           ),
                         ],
                       ),
@@ -299,7 +288,7 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
                       width: 1,
                     ),
                     headingRowColor: MaterialStateColor.resolveWith(
-                        (states) => Color.fromARGB(255, 144, 150, 202)),
+                        (states) => const Color.fromARGB(255, 144, 150, 202)),
                     columns: const [
                       DataColumn(label: Text('Buy Date')),
                       DataColumn(label: Text(' Units')),
@@ -333,11 +322,26 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
 
                         return DataRow(
                           cells: [
-                            DataCell(Text(stock['buyDate'])),
-                            DataCell(
-                                Text('${stock['buyQnty'].toStringAsFixed(2)}')),
-                            DataCell(Text('${stock['buyUnitPrice']}')),
-                            DataCell(Text('${stock['buyAmount']}')),
+                            DataCell(Text(
+                              stock['buyDate'],
+                              style: const TextStyle(
+                                  fontSize: 17, color: Colors.black),
+                            )),
+                            DataCell(Text(
+                              '${stock['buyQnty'].toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                  fontSize: 17, color: Colors.black),
+                            )),
+                            DataCell(Text(
+                              '${stock['buyUnitPrice']}',
+                              style: const TextStyle(
+                                  fontSize: 17, color: Colors.black),
+                            )),
+                            DataCell(Text(
+                              '${stock['buyAmount']}',
+                              style: const TextStyle(
+                                  fontSize: 17, color: Colors.black),
+                            )),
                             // DataCell(
                             //   Text(
                             //     (stock['buyAmount'] * stock['buyPrice'])
@@ -345,12 +349,23 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
                             //   ),
                             // ),
                             DataCell(Text(
-                                ((stock['currPrice'] ?? 0) * stock['buyQnty'])
-                                        ?.ceil()
-                                        .toStringAsFixed(2) ??
-                                    'N/A')),
-                            DataCell(Text(formattedPl)),
-                            DataCell(Text(formattedValue)),
+                              ((stock['currPrice'] ?? 0) * stock['buyQnty'])
+                                      ?.ceil()
+                                      .toStringAsFixed(2) ??
+                                  'N/A',
+                              style: const TextStyle(
+                                  fontSize: 17, color: Colors.black),
+                            )),
+                            DataCell(Text(
+                              formattedPl,
+                              style: const TextStyle(
+                                  fontSize: 17, color: Colors.black),
+                            )),
+                            DataCell(Text(
+                              formattedValue,
+                              style: const TextStyle(
+                                  fontSize: 17, color: Colors.black),
+                            )),
                             DataCell(
                               PopupMenuButton<String>(
                                 onSelected: (String result) {

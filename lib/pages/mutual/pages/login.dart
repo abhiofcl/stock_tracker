@@ -184,8 +184,9 @@ class _LoginScreenMutualState extends State<LoginScreenMutual> {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ExpansionTile(
+                    backgroundColor: const Color.fromARGB(96, 198, 173, 51),
                     collapsedBackgroundColor:
-                        const Color.fromARGB(255, 50, 76, 97),
+                        const Color.fromARGB(96, 198, 173, 51),
                     leading: IconButton(
                       onPressed: () async {
                         showDialog(

@@ -10,7 +10,10 @@ class Choose extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Choose your Screen"),
+        title: Text(
+          "Choose your Screen",
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,

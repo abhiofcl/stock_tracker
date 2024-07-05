@@ -137,13 +137,13 @@ class _SavedState extends State<Saved> {
                   TextField(
                     style: TextStyle(
                       fontSize: 22,
-                      color: Colors.white,
+                      // color: Colors.white,
                     ),
                     onChanged: (value) => _runFilter(value),
                     decoration: const InputDecoration(
                         labelStyle: TextStyle(
-                          color: Colors.white,
-                        ),
+                            // color: Colors.white,
+                            ),
                         labelText: "Search",
                         suffixIcon: Icon(Icons.search)),
                   ),

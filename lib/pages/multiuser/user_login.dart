@@ -213,9 +213,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ExpansionTile(
-                      collapsedBackgroundColor: Colors.blue,
-                      // backgroundColor: Colors.blue,
+                      // textColor: Colors.black,
+                      backgroundColor: const Color.fromARGB(96, 198, 173, 51),
+                      collapsedBackgroundColor:
+                          const Color.fromARGB(96, 198, 173, 51),
                       leading: IconButton(
+                        // color: Colors.white,
                         onPressed: () async {
                           showDialog(
                             context: context,
@@ -242,14 +245,17 @@ class _LoginScreenState extends State<LoginScreen> {
                             },
                           );
                         },
-                        icon: const Icon(Icons.delete),
+                        icon: const Icon(
+                          Icons.delete_forever_outlined,
+                          // color: Colors.white,
+                        ),
                       ),
                       title: Text(
                         panNo,
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          // color: Colors.white,
                         ),
                       ),
                       children: brokers.map((brokername) {
@@ -286,7 +292,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Text("Delete this user??"),
+                                          const Text("Delete this Broker??"),
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,

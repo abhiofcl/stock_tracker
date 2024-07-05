@@ -163,19 +163,44 @@ class _SoldStockScreenState extends State<SoldStockScreen> {
                       stock['sellPrice'] * stock['sellQnty'] ?? 0;
                   return DataRow(
                     cells: [
-                      DataCell(Text(formattedDate)),
-                      DataCell(Text('${stock['buyAmount']}')),
-                      DataCell(Text('${stock['buyPrice']}')),
+                      DataCell(Text(
+                        formattedDate,
+                        style: TextStyle(color: Colors.black),
+                      )),
+                      DataCell(Text(
+                        '${stock['buyAmount']}',
+                        style: TextStyle(color: Colors.black),
+                      )),
+                      DataCell(Text(
+                        '${stock['buyPrice']}',
+                        style: TextStyle(color: Colors.black),
+                      )),
                       DataCell(
                         Text(
                           (stock['buyAmount'] * stock['buyPrice']).toString(),
+                          style: TextStyle(color: Colors.black),
                         ),
                       ),
-                      DataCell(Text(formattedSellDate)),
-                      DataCell(Text(stock['sellPrice']?.toString() ?? 'N/A')),
-                      DataCell(Text(sellAmount.toString())),
-                      DataCell(Text(formattedPl)),
-                      DataCell(Text(formattedValue)),
+                      DataCell(Text(
+                        formattedSellDate,
+                        style: TextStyle(color: Colors.black),
+                      )),
+                      DataCell(Text(
+                        stock['sellPrice']?.toString() ?? 'N/A',
+                        style: TextStyle(color: Colors.black),
+                      )),
+                      DataCell(Text(
+                        sellAmount.toString(),
+                        style: TextStyle(color: Colors.black),
+                      )),
+                      DataCell(Text(
+                        formattedPl,
+                        style: TextStyle(color: Colors.black),
+                      )),
+                      DataCell(Text(
+                        formattedValue,
+                        style: TextStyle(color: Colors.black),
+                      )),
                     ],
                     color: MaterialStateColor.resolveWith((states) =>
                         pl >= 0 ? Colors.green[300]! : Colors.red[300]!),

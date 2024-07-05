@@ -441,7 +441,7 @@ class DatabaseService {
       String userName, String userPan, String stockName) async {
     final db = await instance.database;
     return await db.rawQuery(
-        'SELECT sum(buyAmount)/sum(remaining) as avg FROM stocks_${userPan} where name=? and remaining>0;',
+        'SELECT sum(buyAmount)/sum(buyQnty) as avg FROM stocks_${userPan} where name=? and remaining>0;',
         [stockName]);
   }
 

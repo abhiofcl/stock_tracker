@@ -77,24 +77,6 @@ class _DownloadState extends State<Download> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // const Text("As of Today"),
-            // ElevatedButton(
-            //     onPressed: () async {
-            //       await _loadSFYST(1);
-            //       final tablePdf =
-            //           await PdfApi.generateTable(widget.userPan, stocksData);
-            //       SaveAndOpenDocument.openPdf(tablePdf);
-            //     },
-            //     child: const Text("P/L")),
-            // ElevatedButton(
-            //   onPressed: () async {
-            //     await _loadSFYST(2);
-            //     final tablePdf =
-            //         await PdfApi.generateHoldTable(widget.userPan, stocksData);
-            //     SaveAndOpenDocument.openPdf(tablePdf);
-            //   },
-            //   child: const Text("Holding"),
-            // ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -104,13 +86,14 @@ class _DownloadState extends State<Download> {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: ExpansionTile(
+                        backgroundColor: const Color.fromARGB(96, 198, 173, 51),
                         collapsedBackgroundColor:
                             const Color.fromARGB(96, 198, 173, 51),
                         title: Text(
                           '${int.parse(years[index]['fy']) - 1} - ${years[index]['fy']}',
                           style: const TextStyle(
-                            color: Colors.yellow,
-                          ),
+                              // color: Colors.yellow,
+                              ),
                         ),
                         children: [
                           Padding(

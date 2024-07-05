@@ -82,6 +82,14 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   @override
+  void dispose() {
+    _buyAmountController.dispose();
+    _buyPriceController.dispose();
+    _unitPriceController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -98,24 +106,24 @@ class _AccountScreenState extends State<AccountScreen> {
             //   ),
             // ),
             TextFormField(
-              style: TextStyle(color: Colors.white, fontSize: 22),
+              // style: TextStyle(color: Colors.white, fontSize: 22),
               controller: _buyAmountController,
               decoration: const InputDecoration(
                 labelStyle: TextStyle(
-                  color: Colors.white,
-                ),
+                    // color: Colors.white,
+                    ),
                 labelText: 'Buy Amount',
               ),
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
             ),
             TextFormField(
-              style: TextStyle(color: Colors.white, fontSize: 22),
+              // style: TextStyle(color: Colors.white, fontSize: 22),
               controller: _buyPriceController,
               decoration: const InputDecoration(
                 labelStyle: TextStyle(
-                  color: Colors.white,
-                ),
+                    // color: Colors.white,
+                    ),
                 labelText: 'Buy Unit Price',
               ),
               keyboardType:

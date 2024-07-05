@@ -98,12 +98,12 @@ class _AccountScreenState extends State<AccountScreen> {
               controller: _buyAmountController,
               style: const TextStyle(
                 fontSize: 22,
-                color: Colors.white,
+                // color: Colors.white,
               ),
               decoration: const InputDecoration(
                 labelStyle: TextStyle(
-                  color: Colors.white,
-                ),
+                    // color: Colors.white,
+                    ),
                 labelText: 'Buy Quantity',
               ),
               keyboardType:
@@ -113,12 +113,12 @@ class _AccountScreenState extends State<AccountScreen> {
               controller: _buyPriceController,
               style: const TextStyle(
                 fontSize: 22,
-                color: Colors.white,
+                // color: Colors.white,
               ),
               decoration: const InputDecoration(
                 labelStyle: TextStyle(
-                  color: Colors.white,
-                ),
+                    // color: Colors.white,
+                    ),
                 labelText: 'Buy Price',
               ),
               keyboardType:
@@ -126,9 +126,9 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
             const SizedBox(height: 10),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black, // Dark violet color
-              ),
+              // style: ElevatedButton.styleFrom(
+              //   // foregroundColor: Colors.black, // Dark violet color
+              // ),
               onPressed: () => _selectDate(context),
               child: Text(_selectedDate == null
                   ? 'Select Date'
@@ -136,17 +136,17 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black, // Dark violet color
-              ),
+              // style: ElevatedButton.styleFrom(
+              //   foregroundColor: Colors.black, // Dark violet color
+              // ),
               onPressed: _addStock,
               child: const Text('Add Stock'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black, // Dark violet color
-              ),
+              // style: ElevatedButton.styleFrom(
+              //   foregroundColor: Colors.black, // Dark violet color
+              // ),
               onPressed: () {
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (BuildContext context) {
@@ -161,9 +161,9 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black, // Dark violet color
-              ),
+              // style: ElevatedButton.styleFrom(
+              //   foregroundColor: Colors.black, // Dark violet color
+              // ),
               onPressed: () {
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (BuildContext context) {
