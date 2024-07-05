@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:stock_tracker/pages/multiuser/display.dart';
-import 'package:stock_tracker/database/multiuser_service.dart';
-import 'package:stock_tracker/pages/mutual/mutual_display.dart';
-import 'package:stock_tracker/pages/stock_mgmt/stock_mgmt.dart';
+import 'package:stock_tracker/pages/mutual/pages/multiuser/display.dart';
+import 'package:stock_tracker/pages/mutual/database/multiuser_service.dart';
+import 'package:stock_tracker/pages/mutual/pages/stock_mgmt/stock_mgmt.dart';
 
-class MutualSaved extends StatefulWidget {
+class Saved extends StatefulWidget {
   final String userName;
   final String userPan;
-  const MutualSaved({super.key, required this.userName, required this.userPan});
+  const Saved({super.key, required this.userName, required this.userPan});
 
   @override
-  State<MutualSaved> createState() => _MutualSavedState();
+  State<Saved> createState() => _SavedState();
 }
 
-class _MutualSavedState extends State<MutualSaved> {
+class _SavedState extends State<Saved> {
   TextEditingController _stockNameController = TextEditingController();
   List<Map<String, dynamic>> stocks = [];
   List<Map<String, dynamic>> _foundStocks = [];
@@ -54,7 +53,7 @@ class _MutualSavedState extends State<MutualSaved> {
       results = stocks;
     } else {
       results = stocks
-          .where((user) => user['stockName']
+          .where((user) => user['schemeName']
               .toLowerCase()
               .contains(enteredKeyword.toLowerCase()))
           .toList();
@@ -68,7 +67,7 @@ class _MutualSavedState extends State<MutualSaved> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Saved Mutual Fund"),
+        title: const Text("Saved Funds"),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
@@ -91,8 +90,8 @@ class _MutualSavedState extends State<MutualSaved> {
                               _stockNameController.text = value;
                             });
                           },
-                          decoration: const InputDecoration(
-                              label: Text("Company name")),
+                          decoration:
+                              const InputDecoration(label: Text("Scheme name")),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -125,7 +124,7 @@ class _MutualSavedState extends State<MutualSaved> {
       body: stocks.isEmpty
           ? const Center(
               child: Text(
-                "No stocks",
+                "No funds",
               ),
             )
           : Padding(
@@ -136,9 +135,17 @@ class _MutualSavedState extends State<MutualSaved> {
                     height: 20,
                   ),
                   TextField(
+                    style: TextStyle(
+                      fontSize: 22,
+                      color: Colors.white,
+                    ),
                     onChanged: (value) => _runFilter(value),
                     decoration: const InputDecoration(
-                        labelText: "Search", suffixIcon: Icon(Icons.search)),
+                        labelStyle: TextStyle(
+                          color: Colors.white,
+                        ),
+                        labelText: "Search",
+                        suffixIcon: Icon(Icons.search)),
                   ),
                   const SizedBox(
                     height: 20,
@@ -153,7 +160,7 @@ class _MutualSavedState extends State<MutualSaved> {
                           margin: const EdgeInsets.symmetric(vertical: 5),
                           child: ListTile(
                             leading: Text('${index + 1}'),
-                            title: Text(_foundStocks[index]['stockName']),
+                            title: Text(_foundStocks[index]['schemeName']),
                             trailing: PopupMenuButton(
                               onSelected: (String result) {
                                 switch (result) {
@@ -174,9 +181,9 @@ class _MutualSavedState extends State<MutualSaved> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) {
-                                  return MutualAddScreen(
+                                  return AccountScreen(
                                     userName: widget.userName,
-                                    stockName: stocks[index]['stockName'],
+                                    stockName: stocks[index]['schemeName'],
                                     userPan: widget.userPan,
                                   );
                                 }),
@@ -211,7 +218,7 @@ class _MutualSavedState extends State<MutualSaved> {
               child: const Text('OK'),
               onPressed: () {
                 // Handle OK action
-                _deleteStock(stocks[index]['stockName']);
+                _deleteStock(stocks[index]['schemeName']);
                 Navigator.of(context).pop();
               },
             ),

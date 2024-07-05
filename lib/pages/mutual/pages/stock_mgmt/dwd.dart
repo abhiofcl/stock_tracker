@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:stock_tracker/database/multiuser_service.dart';
-import 'package:stock_tracker/pages/statement_dwd/pdf_service.dart';
-import 'package:stock_tracker/pages/statement_dwd/save_and_open.dart';
+import 'package:stock_tracker/pages/mutual/database/multiuser_service.dart';
+import 'package:stock_tracker/pages/mutual/pages/statement_dwd/pdf_service.dart';
+import 'package:stock_tracker/pages/mutual/pages/statement_dwd/save_and_open.dart';
 
 class Download extends StatefulWidget {
   final String userPan;
@@ -108,9 +108,6 @@ class _DownloadState extends State<Download> {
                             const Color.fromARGB(96, 198, 173, 51),
                         title: Text(
                           '${int.parse(years[index]['fy']) - 1} - ${years[index]['fy']}',
-                          style: const TextStyle(
-                            color: Colors.yellow,
-                          ),
                         ),
                         children: [
                           Padding(

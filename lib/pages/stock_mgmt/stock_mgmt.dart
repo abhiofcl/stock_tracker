@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:stock_tracker/database/multiuser_service.dart';
-import 'package:stock_tracker/pages/stock_mgmt/Statements.dart';
+// import 'package:stock_tracker/pages/stock_mgmt/Statements.dart';
 
 class SavedStockScreen extends StatefulWidget {
   final String userName;
@@ -249,7 +249,7 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
                       width: 1,
                     ),
                     headingRowColor: MaterialStateColor.resolveWith(
-                        (states) => Color.fromARGB(255, 144, 150, 202)),
+                        (states) => const Color.fromARGB(255, 144, 150, 202)),
                     columns: const [
                       DataColumn(label: Text('Sl No.')),
                       DataColumn(label: Text('Buy Date')),
@@ -502,7 +502,7 @@ class _SavedStockScreenState extends State<SavedStockScreen> {
           title: const Text('Set Current Price'),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             TextFormField(
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),

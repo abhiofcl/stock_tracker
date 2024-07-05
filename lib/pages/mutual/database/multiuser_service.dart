@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-// import 'package:stock_tracker/model/stock.dart';
+// import 'package:mutual_funds/model/stock.dart';
 import 'package:sqflite_common/sqlite_api.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -12,7 +12,7 @@ class DatabaseService {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('trading.db');
+    _database = await _initDB('mutual.db');
     return _database!;
   }
 
@@ -38,7 +38,7 @@ class DatabaseService {
 // don't include in production code without warnings!!!!
   Future<void> deleteDatabaseFile() async {
     final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'trading.db');
+    final path = join(dbPath, 'mutual.db');
     if (_database != null) {
       await _database!.close();
       _database = null;
@@ -51,15 +51,17 @@ class DatabaseService {
     final db = await instance.database;
 
     await db.execute('''
-    CREATE TABLE IF NOT EXISTS stocks_$userId (
+    CREATE TABLE IF NOT EXISTS stocks_${userId} (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      brockerName NOT NULL,
-      buyPrice REAL NOT NULL,
+      folioNo NOT NULL,
       buyDate TEXT NOT NULL,
       buyAmount REAL NOT NULL,
-      sellPrice REAL,
+      buyUnitPrice REAL NOT NULL,
+      buyQnty REAL NOT NULL,
       sellDate REAL,
+      sellUnitPrice REAL,
+      sellAmount REAL,
       sellQnty REAL,
       remaining REAL,
       currPrice REAL,
@@ -68,37 +70,15 @@ class DatabaseService {
     ''');
   }
 
-// defining the schema for the table
-  // Future<void> createUserMFTable(String userName, String userId) async {
-  //   final db = await instance.database;
-
-  //   await db.execute('''
-  //   CREATE TABLE IF NOT EXISTS mfs_${userId} (
-  //     id INTEGER PRIMARY KEY AUTOINCREMENT,
-  //     name TEXT NOT NULL,
-  //     schemeName NOT NULL,
-  //     buyPrice REAL NOT NULL,
-  //     buyDate TEXT NOT NULL,
-  //     buyUnits REAL NOT NULL,
-  //     sellPrice REAL,
-  //     sellDate REAL,
-  //     sellQnty REAL,
-  //     remaining REAL,
-  //     currPrice REAL,
-  //     pl REAL
-  //   )
-  //   ''');
-  // }
-
 // a table that contains only the names of the stock that belong to a particular stock brocker
 // under a particular PAN no
-  Future<void> createStockNameTable(String brockerName, String userId) async {
+  Future<void> createMFNameTable(String folioNo, String userPan) async {
     final db = await instance.database;
 
     await db.execute('''
-    CREATE TABLE IF NOT EXISTS stocks_${brockerName}_$userId (
+    CREATE TABLE IF NOT EXISTS stocks_${folioNo}_${userPan} (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      stockName TEXT NOT NULL
+      schemeName TEXT NOT NULL
     )
     ''');
   }
@@ -156,31 +136,31 @@ class DatabaseService {
 
 // function to add only the names of stocks added for a particular broker
   Future<void> addStockname(
-      String brockerName, String userId, String stockName) async {
-    await createStockNameTable(brockerName, userId);
+      String folioNo, String userPan, String schemeName) async {
+    await createMFNameTable(folioNo, userPan);
     final db = await instance.database;
     await db.insert(
-      'stocks_${brockerName}_$userId',
-      {'stockName': stockName},
+      'stocks_${folioNo}_${userPan}',
+      {'schemeName': schemeName},
     );
   }
 
 // function to delete a stockname from the initial list shown if no longer needed
   Future<void> deleteStockName(
-      String userPan, String id, String brockerName) async {
+      String userPan, String id, String schemeName) async {
     final db = await instance.database;
-    await db.delete('stocks_${brockerName}_$userPan',
-        where: 'stockName=?', whereArgs: [id]);
-    await db.delete('stocks_$userPan', where: 'name=?', whereArgs: [id]);
+    await db.delete('stocks_${schemeName}_${userPan}',
+        where: 'schemeName=?', whereArgs: [id]);
+    await db.delete('stocks_${userPan}', where: 'name=?', whereArgs: [id]);
   }
 
 // function to retrieve the stock names only
   Future<List<Map<String, dynamic>>> getStockName(
-      String brockername, String userPan) async {
+      String folioNo, String userPan) async {
     final db = await instance.database;
     try {
-      return await db.query('stocks_${brockername}_$userPan',
-          distinct: true, columns: ['stockName'], orderBy: 'stockName');
+      return await db.query('stocks_${folioNo}_${userPan}',
+          distinct: true, columns: ['schemeName'], orderBy: 'schemeName');
     } on DatabaseException catch (e) {
       if (e.isNoSuchTableError()) {
         // Table does not exist, return an empty list
@@ -210,26 +190,12 @@ class DatabaseService {
     await createUserTable(userName, userId);
   }
 
-// add a new user account for Mutual Fund
-  // Future<void> addMFUser(String schemeName, String userId) async {
-  //   final db = await instance.database;
-
-  //   await db.insert(
-  //     '${userId}_mfs',
-  //     {'name': schemeName, 'idno': userId},
-  //     conflictAlgorithm: ConflictAlgorithm.replace,
-  //   );
-
-  //   // Create user-specific table
-  //   await createUserMFTable(schemeName, userId);
-  // }
-
 // delete an existing user
   Future<void> deleteUser(String userName, String userPan) async {
     final db = await instance.database;
     await db.delete('users', where: 'name=?', whereArgs: [userName]);
     await db.rawDelete(
-        'DELETE FROM stocks_$userPan WHERE brockerName = ?', [userName]);
+        'DELETE FROM stocks_${userPan} WHERE folioNo = ?', [userName]);
     // await db.rawQuery('DROP TABLE ${userPan}_stocks');
   }
 
@@ -237,7 +203,7 @@ class DatabaseService {
   Future<void> deletePAN(String userPan) async {
     final db = await instance.database;
     await db.delete('users', where: 'idno=?', whereArgs: [userPan]);
-    await db.rawQuery('DROP TABLE stocks_$userPan');
+    await db.rawQuery('DROP TABLE stocks_${userPan}');
   }
   // Future<List<Map<String, dynamic>>> getUsers() async {
   //   final db = await instance.database;
@@ -291,11 +257,11 @@ class DatabaseService {
   // }
 
 // insert stocks
-  Future<void> insertStock(String userId, Map<String, dynamic> stock) async {
+  Future<void> insertStock(String userPan, Map<String, dynamic> stock) async {
     final db = await instance.database;
     // Check for existing stocks with the same name
     final List<Map<String, dynamic>> existingStocks = await db.query(
-      'stocks_$userId',
+      'stocks_${userPan}',
       where: 'name = ?',
       whereArgs: [
         stock['name'],
@@ -308,89 +274,20 @@ class DatabaseService {
             existingStock['currPrice'] != '') {
           // Duplicate the currentPrice
           stock['currPrice'] = existingStock['currPrice'];
-          stock['pl'] = ((existingStock['currPrice'] * stock['buyAmount'] -
-                      stock['buyPrice'] * stock['buyAmount']) /
-                  (stock['buyPrice'] * stock['buyAmount'])) *
+          stock['pl'] = ((existingStock['currPrice'] * stock['buyQnty'] -
+                      stock['buyUnitPrice'] * stock['buyQnty']) /
+                  (stock['buyAmount'])) *
               100;
           break;
         }
       }
     }
     await db.insert(
-      'stocks_$userId',
+      'stocks_${userPan}',
       stock,
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     await addFY(stock['buyDate']);
-  }
-
-// insert MF
-  // Future<void> insertMF(String userId, Map<String, dynamic> stock) async {
-  //   final db = await instance.database;
-  //   // Check for existing stocks with the same name
-  //   final List<Map<String, dynamic>> existingStocks = await db.query(
-  //     '${userId}_stocks',
-  //     where: 'name = ?',
-  //     whereArgs: [
-  //       stock['name'],
-  //     ],
-  //   );
-  //   if (existingStocks.isNotEmpty) {
-  //     // Check if any of the existing stocks have a non-empty currentPrice
-  //     for (var existingStock in existingStocks) {
-  //       if (existingStock['currPrice'] != null &&
-  //           existingStock['currPrice'] != '') {
-  //         // Duplicate the currentPrice
-  //         stock['currPrice'] = existingStock['currPrice'];
-  //         stock['pl'] = ((existingStock['currPrice'] * stock['buyAmount'] -
-  //                     stock['buyPrice'] * stock['buyAmount']) /
-  //                 (stock['buyPrice'] * stock['buyAmount'])) *
-  //             100;
-  //         break;
-  //       }
-  //     }
-  //   }
-  //   await db.insert(
-  //     '${userId}_stocks',
-  //     stock,
-  //     conflictAlgorithm: ConflictAlgorithm.replace,
-  //   );
-  //   await addFY(stock['buyDate']);
-  // }
-
-// get all stocks of a particular stock
-  Future<List<Map<String, dynamic>>> getAllStocks(String userName) async {
-    final db = await instance.database;
-
-    return await db.query(
-      'stocks_$userName',
-      where: 'remaining > ?',
-      whereArgs: [0],
-    );
-  }
-
-//get all stocks of a particular stock with p/l(ie already sold stocks)
-  Future<List<Map<String, dynamic>>> getPLStocks(
-      String userPan, String userName, String stockName) async {
-    final db = await instance.database;
-
-    return await db.query(
-      'stocks_$userName',
-      where: 'name =? and remaining = 0',
-      whereArgs: [stockName],
-    );
-  }
-
-//get all stocks of a particular stock with holdings(ie already not sold stocks)
-  Future<List<Map<String, dynamic>>> getHoldingStocks(
-      String userPan, String userName, String stockName) async {
-    final db = await instance.database;
-
-    return await db.query(
-      'stocks_$userName',
-      where: 'name =? and remaining > 0',
-      whereArgs: [stockName],
-    );
   }
 
 // get a single stock value to show the company names in a grouped fashion
@@ -398,8 +295,8 @@ class DatabaseService {
       String userName, String userPan, String stockName) async {
     final db = await instance.database;
 
-    return await db.query('stocks_$userPan',
-        where: 'name=? and brockerName=? and remaining >0',
+    return await db.query('stocks_${userPan}',
+        where: 'name=? and folioNo=? and remaining >0',
         whereArgs: [stockName, userName]);
   }
 
@@ -408,9 +305,20 @@ class DatabaseService {
       String userName, String userPan, String stockName) async {
     final db = await instance.database;
 
-    return await db.query('stocks_$userPan',
-        where: 'name=? and brockerName=? and remaining=0',
+    return await db.query('stocks_${userPan}',
+        where: 'name=? and folioNo=? and remaining=0',
         whereArgs: [stockName, userName]);
+  }
+
+// get a filtered list of mutual funds from the db
+  Future<List<Map<String, dynamic>>> getFilteredFunds(String userName,
+      String userPan, String stockName, String start, String end) async {
+    final db = await instance.database;
+
+    return await db.query('stocks_${userPan}',
+        where:
+            'name=? and folioNo=? and remaining>0 and buyDate between ? and ?',
+        whereArgs: [stockName, userName, start, end]);
   }
 
 // method to show the total invested and profit
@@ -419,45 +327,67 @@ class DatabaseService {
     final db = await instance.database;
 
     return await db.rawQuery(
-        "SELECT sum(buyPrice*buyAmount) as totalInv FROM stocks_$userPan  WHERE name=? and brockerName=? and remaining >0",
+        "SELECT sum(buyUnitPrice*buyQnty) as totalInv FROM stocks_${userPan}  WHERE name=? and folioNo=? and remaining >0",
         [stockName, userName]);
   }
 
 // sell a batch of stock and update the fields sell date and price
   Future<void> sellStock(String userName, String userPan, int stockId,
-      double amount, String date) async {
+      double unitPrice, String date) async {
     final db = await instance.database;
 
     await db.rawUpdate('''
-  UPDATE stocks_$userPan 
+  UPDATE stocks_${userPan} 
   SET 
     remaining = 0, 
     sellDate = ?, 
-    sellPrice = ?, 
-    sellQnty = buyAmount 
+    sellUnitPrice = ?, 
+    sellQnty = buyQnty 
   WHERE id = ?
-  ''', [date, amount, stockId]);
+  ''', [date, unitPrice, stockId]);
     await db.rawQuery(
-        "UPDATE stocks_$userPan set pl = ((sellPrice*buyAmount - buyPrice*buyAmount)/(buyPrice*buyAmount))*100 where id=?",
+        "UPDATE stocks_${userPan} set pl = ((sellUnitPrice*buyQnty - buyAmount)/(buyAmount))*100 where id=?",
         [stockId]);
     await addFY(date);
   }
 
 // sell a batch of stock and update the fields sell date and price
+  Future<void> sellFilteredStock(String userName, String userPan,
+      List<Map<String, dynamic>> stocks, double unitPrice, String date) async {
+    final db = await instance.database;
+
+    for (var stock in stocks) {
+      await db.rawUpdate('''
+  UPDATE stocks_${userPan} 
+  SET 
+    remaining = 0, 
+    sellDate = ?, 
+    sellUnitPrice = ?, 
+    sellQnty = buyQnty 
+  WHERE id = ?
+  ''', [date, unitPrice, stock['id']]);
+      await db.rawQuery(
+          "UPDATE stocks_${userPan} set pl = ((sellUnitPrice*buyQnty - buyAmount)/(buyAmount))*100 where id=?",
+          [stock['id']]);
+    }
+    await addFY(date);
+  }
+
+// sell a batch of stock and update the fields sell date and price
   Future<void> updateStock(String userName, String userPan, int stockId,
-      double amount, double quantity) async {
+      double unitPrice, double quantity) async {
     final db = await instance.database;
 
     await db.rawUpdate('''
-  UPDATE stocks_$userPan 
+  UPDATE stocks_${userPan} 
   SET 
     remaining = ?, 
-    buyAmount=?,
-    buyPrice=?
+    buyUnitPrice=?,
+    buyAmount=?
   WHERE id = ?
-  ''', [quantity, quantity, amount, stockId]);
+  ''', [quantity, unitPrice, unitPrice, stockId]);
     await db.rawQuery(
-        "UPDATE stocks_$userPan set pl = ((currPrice*buyAmount - buyPrice*buyAmount)/(buyPrice*buyAmount))*100 where id=?",
+        "UPDATE stocks_${userPan} set pl = ((currPrice*buyAmount - buyPrice*buyAmount)/(buyPrice*buyAmount))*100 where id=?",
         [stockId]);
     // await addFY(date);
   }
@@ -466,7 +396,7 @@ class DatabaseService {
   Future<void> deleteBatch(String userPan, int stockId) async {
     final db = await instance.database;
 
-    await db.delete('stocks_$userPan', where: 'id=?', whereArgs: [stockId]);
+    await db.delete('stocks_${userPan}', where: 'id=?', whereArgs: [stockId]);
   }
 
 // update the current price field to calculate profit/loss
@@ -474,7 +404,7 @@ class DatabaseService {
       String userName, String userPan, String name, double currPrice) async {
     final db = await instance.database;
     await db.update(
-      'stocks_$userPan',
+      'stocks_${userPan}',
       {
         'currPrice': currPrice,
       },
@@ -482,7 +412,7 @@ class DatabaseService {
       whereArgs: [name],
     );
     await db.rawQuery(
-        "UPDATE stocks_$userPan set pl = ((currPrice*buyAmount - buyPrice*buyAmount)/(buyPrice*buyAmount))*100 where name=? and remaining>0",
+        "UPDATE stocks_${userPan} set pl = ((currPrice * buyQnty - buyAmount)/(buyAmount))*100 where name=? and remaining>0",
         [name]);
   }
 
@@ -492,7 +422,7 @@ class DatabaseService {
     final db = await instance.database;
 
     return await db.rawQuery(
-        "SELECT name,pl FROM stocks_$userPan  WHERE name=? and id=?",
+        "SELECT name,pl FROM stocks_${userPan}  WHERE name=? and id=?",
         [stockName, id]);
   }
 
@@ -501,7 +431,7 @@ class DatabaseService {
       String userName, String userPan) async {
     final db = await instance.database;
     return await db.rawQuery(
-      'SELECT name, SUM(buyAmount) as total_quantity FROM stocks_$userPan where brockerName=?  GROUP BY name HAVING SUM(buyAmount) > 0 ',
+      'SELECT name, SUM(buyAmount) as total_quantity FROM stocks_${userPan} where folioNo=?  GROUP BY name HAVING SUM(buyAmount) > 0 ',
       [userName],
     );
   }
@@ -511,49 +441,14 @@ class DatabaseService {
       String userName, String userPan, String stockName) async {
     final db = await instance.database;
     return await db.rawQuery(
-        'SELECT sum(buyamount*buyprice)/sum(remaining) as avg FROM stocks_$userPan where name=? and remaining>0;',
+        'SELECT sum(buyAmount)/sum(remaining) as avg FROM stocks_${userPan} where name=? and remaining>0;',
         [stockName]);
   }
-
-  // query for generating statement
-  // Future<List<Map<String, dynamic>>> fetchFinancialYearDataPL(
-  //     String userPan, String date) async {
-  //   final db = await instance.database;
-  //   final result = await db.query(
-  //     '${userPan}_stocks',
-  //     where: 'remaining = 0',
-  //   ); // Adjust the query as needed
-  //   return result;
-  // }
-
-  // Future<List<Map<String, dynamic>>> fetchFinancialYearDataHold(
-  //     String userPan, String date) async {
-  //   final db = await instance.database;
-  //   final List<Map<String, dynamic>> existingStocks = await db.query(
-  //     '${userPan}_stocks',
-  //     // columns: [
-  //     //   'name',
-  //     //   'buyDate',
-  //     //   'sellDate',
-  //     //   'remaining',
-  //     // ],
-  //     // where: 'sellDate ',
-  //     // whereArgs: [
-  //       // stock['name'],
-  //     // ],
-  //   );
-
-  //   final result = await db.query(
-  //     '${userPan}_stocks',
-  //     where: 'remaining > 0',
-  //   ); // Adjust the query as needed
-  //   return result;
-  // }
 
   Future<List<Map<String, dynamic>>> fetchYears(String userPan) async {
     final db = await instance.database;
     final result = await db.rawQuery(
-        'SELECT DISTINCT SUBSTR(buyDate, 1, 4) AS year FROM stocks_$userPan;');
+        'SELECT DISTINCT SUBSTR(buyDate, 1, 4) AS year FROM stocks_${userPan};');
     return result;
   }
 
@@ -562,9 +457,9 @@ class DatabaseService {
     String start = '${date - 1}-04-01';
     String end = '$date-03-31';
     final db = await instance.database;
-    final result = await db.query('stocks_$userPan',
+    final result = await db.query('stocks_${userPan}',
         where:
-            'brockerName = ?  and remaining = 0 and sellDate BETWEEN ? AND ? order by name',
+            'folioNo = ?  and remaining = 0 and sellDate BETWEEN ? AND ? order by name',
         whereArgs: [brokerName, start, end]); // Adjust the query as needed
     return result;
   }
@@ -586,8 +481,8 @@ class DatabaseService {
     final db = await instance.database;
 
     final result = await db.rawQuery('''
-    SELECT * FROM stocks_$userPan
-    WHERE brockerName=? and (buyDate <= ? AND (sellDate IS NULL OR (not sellDate < ? and sellDate not between ? and ?)))
+    SELECT * FROM stocks_${userPan}
+    WHERE folioNo=? and (buyDate <= ? AND (sellDate IS NULL OR (not sellDate < ? and sellDate not between ? and ?)))
     order BY name
   ''', [brokerName, end, start, start, end]);
 

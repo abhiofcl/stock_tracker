@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:stock_tracker/database/multiuser_service.dart';
-// import 'package:stock_tracker/pages/stock_mgmt/Statements.dart';
+import 'package:stock_tracker/pages/mutual/database/multiuser_service.dart';
+import 'package:stock_tracker/pages/mutual/pages/stock_mgmt/Statements.dart';
 
 class SoldStockScreen extends StatefulWidget {
   final String userName;
@@ -130,11 +130,12 @@ class _SoldStockScreenState extends State<SoldStockScreen> {
                   (states) => Color.fromARGB(255, 144, 150, 202)),
               columns: const [
                 DataColumn(label: Text('Buy Date')),
-                DataColumn(label: Text('Buy Quantity')),
-                DataColumn(label: Text('Buy Price')),
-                DataColumn(label: Text('Invested Amount')),
+                DataColumn(label: Text('Units')),
+                DataColumn(label: Text('Unit Price')),
+                DataColumn(label: Text('Buy Amount')),
                 DataColumn(label: Text('Sell Date')),
-                DataColumn(label: Text('Sell Price')),
+                DataColumn(label: Text('Sell Qnty')),
+                DataColumn(label: Text('Sell unit Price')),
                 DataColumn(label: Text('Sell Amount')),
                 DataColumn(label: Text('P/L')),
                 DataColumn(label: Text('% P/L')),
@@ -153,27 +154,29 @@ class _SoldStockScreenState extends State<SoldStockScreen> {
                   double value = stock['pl'] ?? 0;
                   final formattedValue = value.toStringAsFixed(2);
                   double pl = ((stock['pl'] ?? 0) *
-                          stock['buyPrice'] *
-                          stock['buyAmount'] /
+                          stock['buyUnitPrice'] *
+                          stock['buyQnty'] /
                           100) ??
                       0;
                   final formattedPl = pl.toStringAsFixed(2);
                   double rem = stock['remaining'];
                   double sellAmount =
-                      stock['sellPrice'] * stock['sellQnty'] ?? 0;
+                      stock['sellUnitPrice'] * stock['sellQnty'] ?? 0;
                   return DataRow(
                     cells: [
                       DataCell(Text(formattedDate)),
-                      DataCell(Text('${stock['buyAmount']}')),
-                      DataCell(Text('${stock['buyPrice']}')),
+                      DataCell(Text('${stock['buyQnty'].toStringAsFixed(2)}')),
+                      DataCell(Text('${stock['buyUnitPrice']}')),
                       DataCell(
                         Text(
-                          (stock['buyAmount'] * stock['buyPrice']).toString(),
+                          ('${stock['buyAmount']}'),
                         ),
                       ),
                       DataCell(Text(formattedSellDate)),
-                      DataCell(Text(stock['sellPrice']?.toString() ?? 'N/A')),
-                      DataCell(Text(sellAmount.toString())),
+                      DataCell(Text('${stock['sellQnty'].toStringAsFixed(2)}')),
+                      DataCell(
+                          Text(stock['sellUnitPrice']?.toString() ?? 'N/A')),
+                      DataCell(Text(sellAmount.ceil().toString())),
                       DataCell(Text(formattedPl)),
                       DataCell(Text(formattedValue)),
                     ],

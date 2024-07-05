@@ -25,18 +25,21 @@ class PdfApi {
           double totalPl = data.isNotEmpty
               ? data
                   .map((item) => ((item['pl'] ?? 0) *
-                          item['buyPrice'] *
-                          item['buyAmount'] /
+                          item['buyUnitPrice'] *
+                          item['buyQnty'] /
                           100 ??
                       0.0) as double)
                   .reduce((a, b) => a + b)
                   .ceil()
                   .toDouble()
               : 0.0;
+          double totalUnits = data.isNotEmpty
+              ? data.map((item) => item['buyQnty']).reduce((a, b) => a + b)
+              : 0.0;
           double totalInv = data.isNotEmpty
               ? data
                   .map((item) =>
-                      (item['buyPrice'] * item['buyAmount']) as double)
+                      (item['buyUnitPrice'] * item['buyQnty']) as double)
                   .reduce((a, b) => a + b)
                   .ceil()
                   .toDouble()
@@ -44,8 +47,8 @@ class PdfApi {
 
           double totalPv = data.isNotEmpty
               ? data
-                  .map((item) =>
-                      ((item['sellPrice'] ?? 0) * item['buyAmount']) as double)
+                  .map((item) => ((item['sellUnitPrice'] ?? 0) *
+                      item['buyQnty']) as double)
                   .reduce((a, b) => a + b)
                   .ceil()
                   .toDouble()
@@ -78,11 +81,12 @@ class PdfApi {
                 <String>[
                   'Name',
                   'Buy Date',
-                  'Buy Price',
-                  'Buy Qty',
-                  'Inv Amnt',
+                  'Units',
+                  'Unit Price',
+                  'Amount',
                   'Sell Date',
-                  'Sell Price',
+                  'Sell Units',
+                  'Sell unit Price',
                   'Sell Amnt',
                   'Profit / Loss'
                 ],
@@ -92,16 +96,19 @@ class PdfApi {
                     (DateFormat('dd-MM-yy')
                             .format(DateTime.parse(item['buyDate'])))
                         .toString(),
-                    item['buyPrice'].toString(),
-                    item['buyAmount'].ceil().toString(),
-                    (item['buyPrice'] * item['buyAmount']).ceil().toString(),
+                    item['buyQnty'].ceil().toString(),
+                    item['buyUnitPrice'].toString(),
+                    (item['buyUnitPrice'] * item['buyQnty']).ceil().toString(),
                     (DateFormat('dd-MM-yy')
                             .format(DateTime.parse(item['sellDate'])))
                         .toString(),
-                    item['sellPrice'].ceil().toString(),
-                    (item['sellPrice'] * item['sellQnty']).ceil().toString(),
-                    ((((item['sellPrice'] * item['sellQnty']) -
-                            (item['buyPrice'] * item['buyAmount']))))
+                    item['sellQnty'].ceil().toString(),
+                    item['sellUnitPrice'].ceil().toString(),
+                    (item['sellUnitPrice'] * item['sellQnty'])
+                        .ceil()
+                        .toString(),
+                    ((((item['sellUnitPrice'] * item['sellQnty']) -
+                            (item['buyUnitPrice'] * item['buyQnty']))))
                         .ceil()
                         .toString(),
                   ],
@@ -109,9 +116,10 @@ class PdfApi {
                 <String>[
                   'Total',
                   '',
-                  '',
+                  totalUnits.toStringAsFixed(2),
                   '',
                   totalInv.ceil().toString(),
+                  '',
                   '',
                   '',
                   totalPv.ceil().toString(),
@@ -150,23 +158,22 @@ class PdfApi {
           double totalPl = data.isNotEmpty
               ? data
                   .map((item) => ((item['pl'] ?? 0) *
-                          item['buyPrice'] *
-                          item['buyAmount'] /
+                          item['buyUnitPrice'] *
+                          item['buyQnty'] /
                           100 ??
                       0.0) as double)
                   .reduce((a, b) => a + b)
               : 0.0;
           double totalInv = data.isNotEmpty
               ? data
-                  .map((item) =>
-                      (item['buyPrice'] * item['buyAmount']) as double)
+                  .map((item) => (item['buyAmount']) as double)
                   .reduce((a, b) => a + b)
               : 0.0;
 
           double totalPv = data.isNotEmpty
               ? data
                   .map((item) =>
-                      ((item['currPrice'] ?? 0) * item['buyAmount']) as double)
+                      ((item['currPrice'] ?? 0) * item['buyQnty']) as double)
                   .reduce((a, b) => a + b)
               : 0.0;
           DateTime today = DateTime.now();
@@ -206,10 +213,10 @@ class PdfApi {
                 <String>[
                   'Name',
                   'Buy Date',
-                  'Buy Price',
-                  'Buy Qty',
+                  'Units',
+                  'Unit Price',
                   'Inv Amnt',
-                  'Current Price',
+                  'Pr Unit Value',
                   'Present Value',
                   'Profit / Loss',
                   'Holding days',
@@ -220,16 +227,16 @@ class PdfApi {
                     (DateFormat('dd-MM-yy')
                             .format(DateTime.parse(item['buyDate'])))
                         .toString(),
-                    item['buyPrice'].ceil().toString(),
-                    item['buyAmount'].ceil().toString(),
-                    (item['buyPrice'] * item['buyAmount']).ceil().toString(),
+                    item['buyQnty'].ceil().toString(),
+                    item['buyUnitPrice'].toStringAsFixed(2),
+                    (item['buyAmount']).ceil().toString(),
                     (item['currPrice'] ?? 0).ceil().toString(),
-                    ((item['currPrice'] ?? 0) * item['buyAmount'])
+                    ((item['currPrice'] ?? 0) * item['buyQnty'])
                         .ceil()
                         .toString(),
                     ((item['pl'] ?? 0) *
-                            item['buyPrice'] *
-                            item['buyAmount'] /
+                            item['buyUnitPrice'] *
+                            item['buyQnty'] /
                             100)
                         .ceil()
                         .toString(),

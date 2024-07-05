@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:stock_tracker/database/multiuser_service.dart';
 import 'package:stock_tracker/pages/stock_mgmt/sold.dart';
 import 'package:stock_tracker/pages/stock_mgmt/stock_mgmt.dart';
-import 'package:stock_tracker/saved.dart';
+// import 'package:stock_tracker/saved.dart';
 // import 'database_service.dart';
 
 class AccountScreen extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stock_tracker/pages/multiuser/display.dart';
 import 'package:stock_tracker/database/multiuser_service.dart';
-import 'package:stock_tracker/pages/stock_mgmt/stock_mgmt.dart';
+// import 'package:stock_tracker/pages/stock_mgmt/stock_mgmt.dart';
 
 class Saved extends StatefulWidget {
   final String userName;
@@ -234,7 +234,7 @@ class _SavedState extends State<Saved> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Delete Item'),
-          content: const Text('Are you sure you want to delete this batch?'),
+          content: const Text('Are you sure you want to delete this company?'),
           actions: <Widget>[
             TextButton(
               child: const Text('Cancel'),

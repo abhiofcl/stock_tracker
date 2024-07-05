@@ -78,7 +78,32 @@ class _LoginScreenState extends State<LoginScreen> {
         title: const Text('Select Account'),
         actions: [
           IconButton(
-            onPressed: () => _deleteDB(),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Delete the entire database?'),
+                    actions: <Widget>[
+                      TextButton(
+                        child: const Text('Cancel'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      TextButton(
+                        child: const Text('OK'),
+                        onPressed: () {
+                          // Handle OK action
+                          _deleteDB();
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
             icon: const Icon(Icons.delete),
           )
         ],
@@ -97,27 +122,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 300,
                     child: Column(
                       children: [
-                        // DropdownMenu(
-                        //   onSelected: (value) {
-                        //     if (value != null) {
-                        //       setState(() {
-                        //         flag = value;
-                        //       });
-                        //     }
-                        //   },
-                        //   dropdownMenuEntries: const <DropdownMenuEntry>[
-                        //     DropdownMenuEntry(
-                        //       value: 2,
-                        //       label: "Mutual Fund",
-                        //     ),
-                        //     DropdownMenuEntry(
-                        //       value: 1,
-                        //       label: "Stocks",
-                        //     )
-                        //   ],
-                        // ),
                         TextFormField(
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 22,
                           ),
                           controller: _userNameController,
@@ -134,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         TextFormField(
                           controller: _idNoController,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 22,
                           ),
                           onChanged: (value) {
@@ -211,13 +217,36 @@ class _LoginScreenState extends State<LoginScreen> {
                       // backgroundColor: Colors.blue,
                       leading: IconButton(
                         onPressed: () async {
-                          await _deletepan(panNo);
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Delete the PAN?'),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: const Text('Cancel'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: const Text('OK'),
+                                    onPressed: () {
+                                      // Handle OK action
+                                      _deletepan(panNo);
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         },
                         icon: const Icon(Icons.delete),
                       ),
                       title: Text(
                         panNo,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -243,7 +272,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             tileColor: Colors.amber[300],
                             title: Text(
                               brokername,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
