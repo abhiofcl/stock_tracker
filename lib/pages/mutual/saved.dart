@@ -64,6 +64,12 @@ class _SavedState extends State<Saved> {
   }
 
   @override
+  void dispose() {
+    _stockNameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
